@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Raya Science Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="theme-hub">
+  <div id="app">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo-mark"></div>
+        <div>
+          <h1>Raya's Science Studio</h1>
+          <p class="tagline">Interactive simulations for chemistry, physics, and engineering!</p>
+        </div>
+      </div>
+      <div class="author-chip">Created by Raya Srivastav</div>
+    </header>
+
+    <main>
+      <!-- HUB SCREEN -->
+      <section id="hubScreen" class="screen active">
+        <div class="hub-intro">
+          <div>
+            <h2>Choose a Simulation</h2>
+            <p>
+              Start with Photocatalysis or explore Fractional Distillation.
+              This hub will eventually host many more simulations.
+            </p>
+          </div>
+          <div class="hub-note">
+            <span class="hub-pill">Studio Overview</span>
+            <p>
+              Each simulation has been made to demonstrate a certain physics, chemistry, or 
+              engineering principle. Email raya.srivastav@gmail.com to sumbit ideas!
+            </p>
+          </div>
+        </div>
+
+        <!-- Wide rows (horizontal cards) -->
+        <div class="sim-list">
+          <!-- Photocatalysis row -->
+          <article class="sim-row sim-photo" data-sim="photocatalysis">
+            <div class="sim-row-main">
+              <h3>Photocatalysis: Bands → Charges → Radicals</h3>
+              <p>
+                Use light to excite electrons across a band gap, form radicals on a catalyst surface, and
+                watch pollutants disappear over time.
+              </p>
+              <div class="sim-meta">
+                <span class="sim-tag">Chemistry · Light · Surfaces</span>
+                <span class="sim-status">Ready to Run</span>
+              </div>
+            </div>
+            <div class="sim-row-side">
+              <div class="sim-preview sim-preview-photo"></div>
+              <button class="sim-row-btn">Open Simulation</button>
+            </div>
+          </article>
+
+          <!-- Fractional Distillation row -->
+          <article class="sim-row sim-distil" data-sim="distillation">
+            <div class="sim-row-main">
+              <h3>Fractional Distillation Tower</h3>
+              <p>
+                Heat a binary liquid, vary the number of trays and reflux ratio, and see how vapour–liquid
+                contact sharpens the separation between top and bottom products.
+              </p>
+              <div class="sim-meta">
+                <span class="sim-tag">Chemistry · Separation · Thermodynamics</span>
+                <span class="sim-status">Ready to Run</span>
+              </div>
+            </div>
+            <div class="sim-row-side">
+              <div class="sim-preview sim-preview-distil"></div>
+              <button class="sim-row-btn">Open Simulation</button>
+            </div>
+          </article>
+
+          <!-- Future sim row (placeholder) -->
+          <article class="sim-row sim-coming">
+            <div class="sim-row-main">
+              <h3>Future Simulation (Coming Soon)</h3>
+              <p>
+                This slot is reserved for a future experiment — batteries, enzymes, or whatever I decide
+                to build next.
+              </p>
+              <div class="sim-meta">
+                <span class="sim-tag">In Development</span>
+                <span class="sim-status ghost">Not Yet Available</span>
+              </div>
+            </div>
+            <div class="sim-row-side">
+              <div class="sim-preview sim-preview-placeholder"></div>
+              <button class="sim-row-btn" disabled>Coming Soon</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- SIMULATION SCREEN -->
+      <section id="simScreen" class="screen" hidden>
+        <div class="sim-header-row">
+          <button id="backToHub" class="back-btn">← All Simulations</button>
+          <div class="sim-title-block">
+            <h2 id="simTitle">Simulation Title</h2>
+            <p id="simSubtitle">Short description goes here.</p>
+          </div>
+          <div id="simThemeLabel" class="sim-theme-label">Theme</div>
+        </div>
+
+        <!-- Photocatalysis Layout -->
+        <div id="simPhotocatalysis" class="sim-layout" hidden>
+          <section class="sim-canvas-card">
+            <canvas id="photoCanvas" aria-label="Photocatalysis Visualization"></canvas>
+
+            <div class="legend-bar">
+              <div class="legend-item">
+                <span class="dot electron"></span> Electron (Conduction Band)
+              </div>
+              <div class="legend-item">
+                <span class="dot hole"></span> Hole (Valence Band)
+              </div>
+              <div class="legend-item">
+                <span class="dot oh"></span> •OH Radical
+              </div>
+              <div class="legend-item">
+                <span class="dot o2m"></span> O₂•⁻ Radical
+              </div>
+            </div>
+
+            <div class="pollutant-panel">
+              <div class="poll-header">
+                <span>Pollutant Near Surface</span>
+                <button class="info-badge" data-info="This bar represents the fraction of pollutant still present near the catalyst surface. It decreases when radicals form and when excitation is active.">
+                  ?
+                </button>
+              </div>
+              <div class="poll-bar">
+                <div id="photoPollFill" class="poll-fill"></div>
+              </div>
+              <div class="poll-text">
+                <span id="photoPollText">100%</span> Remaining
+              </div>
+            </div>
+
+            <p class="sim-footnote">
+              Hint: Reduce the wavelength and increase the intensity to see more excitations and faster pollutant removal.
+            </p>
+          </section>
+
+          <aside class="sim-controls-card">
+            <h3>Photocatalysis Controls</h3>
+
+            <div class="control-group">
+              <label for="photoMaterial">
+                Material
+                <button class="info-badge" data-info="Different semiconductor photocatalysts have different bandgaps Eg. TiO₂ and ZnO mainly absorb UV, while Fe₂O₃ can absorb some visible light.">
+                  ?
+                </button>
+              </label>
+              <select id="photoMaterial">
+                <option value="tio2">TiO₂ (≈ 3.2 eV)</option>
+                <option value="zno">ZnO (≈ 3.3 eV)</option>
+                <option value="fe2o3">Fe₂O₃ (≈ 2.2 eV)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label for="photoDoping">
+                Doping (Bandgap Shift)
+                <button class="info-badge" data-info="Doping means adding small amounts of other elements to the crystal. Here we treat it as a slight decrease in Eg, allowing lower-energy photons to excite electrons.">
+                  ?
+                </button>
+              </label>
+              <div class="row">
+                <input id="photoDoping" type="range" min="0" max="100" value="0" />
+                <span id="photoDopingValue" class="value-pill">0%</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="photoWavelength">
+                Wavelength λ (nm)
+                <button class="info-badge" data-info="Photon energy (in eV) is approximately 1240 / λ(nm). Shorter wavelength = higher energy. Excitation occurs when photon energy ≥ Eg.">
+                  ?
+                </button>
+              </label>
+              <div class="row">
+                <input id="photoWavelength" type="range" min="350" max="800" value="550" />
+                <span id="photoLambdaValue" class="value-pill">550 nm</span>
+              </div>
+              <div id="photoColorPreview" class="color-preview"></div>
+            </div>
+
+            <div class="control-group">
+              <label for="photoIntensity">
+                Light Intensity
+                <button class="info-badge" data-info="Intensity represents how many photons arrive per second. When E ≥ Eg, higher intensity means more electron–hole pairs.">
+                  ?
+                </button>
+              </label>
+              <div class="row">
+                <input id="photoIntensity" type="range" min="0" max="1" step="0.01" value="0.4" />
+                <span id="photoIntensityValue" class="value-pill">0.40</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label>Surface Species</label>
+              <div class="row">
+                <label class="toggle">
+                  <input id="photoHasO2" type="checkbox" checked />
+                  O₂ Present
+                </label>
+                <label class="toggle">
+                  <input id="photoHasH2O" type="checkbox" checked />
+                  H₂O Present
+                </label>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label>Display and Speed</label>
+              <div class="row">
+                <label class="toggle">
+                  <input id="photoShowPhotons" type="checkbox" checked />
+                  Show Photons
+                </label>
+                <label class="toggle">
+                  <input id="photoShowTrails" type="checkbox" />
+                  Extra Trails
+                </label>
+              </div>
+              <div class="row">
+                <span class="speed-label">Speed:</span>
+                <select id="photoSpeed">
+                  <option value="1">Normal</option>
+                  <option value="0.5">Slow</option>
+                  <option value="0.25">Very Slow</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="control-group metrics">
+              <div class="metric">
+                <div class="metric-label">Eg (Effective)</div>
+                <div class="metric-value" id="photoEgValue">–</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Photon Energy</div>
+                <div class="metric-value" id="photoEphValue">–</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Excitations / s</div>
+                <div class="metric-value" id="photoRateValue">0</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Radicals Formed</div>
+                <div class="metric-value" id="photoRadValue">0</div>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label>Status</label>
+              <div id="photoStatusBadge" class="status-badge off">No Excitation (E &lt; Eg)</div>
+            </div>
+
+            <div class="control-buttons">
+              <button id="photoPlay" class="primary">Play</button>
+              <button id="photoPause">Pause</button>
+              <button id="photoReset">Reset</button>
+            </div>
+          </aside>
+        </div>
+
+        <!-- Fractional Distillation Layout -->
+        <div id="simDistillation" class="sim-layout" hidden>
+          <section class="sim-canvas-card">
+            <canvas id="distilCanvas" aria-label="Fractional Distillation Column"></canvas>
+
+            <div class="legend-bar">
+              <div class="legend-item">
+                <span class="tray-color tray-top"></span> Top (Distillate, Light Component)
+              </div>
+              <div class="legend-item">
+                <span class="tray-color tray-bottom"></span> Bottom (Heavy Component)
+              </div>
+              <div class="legend-item">
+                <span class="bubble-dot"></span> Rising Vapour
+              </div>
+              <div class="legend-item">
+                <span class="drop-dot"></span> Falling Liquid
+              </div>
+            </div>
+
+            <div class="distil-purity-panel">
+              <div class="purity-block">
+                <h4>Distillate Purity</h4>
+                <div class="purity-bar">
+                  <div id="distilTopFill" class="purity-fill top"></div>
+                </div>
+                <p><span id="distilTopValue">–</span> Light Component</p>
+              </div>
+              <div class="purity-block">
+                <h4>Bottoms Purity</h4>
+                <div class="purity-bar">
+                  <div id="distilBottomFill" class="purity-fill bottom"></div>
+                </div>
+                <p><span id="distilBottomValue">–</span> Light Component</p>
+              </div>
+            </div>
+
+            <p class="sim-footnote">
+              Idea: More trays and a higher reflux ratio make the top product richer in the more volatile
+              component, while the bottoms become heavier.
+            </p>
+          </section>
+
+          <aside class="sim-controls-card crimson">
+            <h3>Distillation Controls</h3>
+
+            <div class="control-group">
+              <label for="distilMixture">
+                Mixture Preset
+                <button class="info-badge" data-info="Each preset represents a binary mixture with a certain relative volatility. Larger α means an easier separation.">
+                  ?
+                </button>
+              </label>
+              <select id="distilMixture">
+                <option value="hex- hep">Hexane / Heptane</option>
+                <option value="tol- eth">Toluene / Ethylbenzene</option>
+                <option value="custom">Custom Relative Volatility</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label for="distilAlpha">
+                Relative Volatility (α)
+                <button class="info-badge" data-info="Relative volatility α measures how much more volatile the light component is compared with the heavy one. α > 1 is required for separation.">
+                  ?
+                </button>
+              </label>
+              <div class="row">
+                <input id="distilAlpha" type="range" min="1.1" max="3.0" step="0.05" value="1.8" />
+                <span id="distilAlphaValue" class="value-pill">1.80</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="distilFeed">
+                Feed Composition (Light Component)
+                <button class="info-badge" data-info="This is the mole fraction of the more volatile component in the feed. It appears at the feed tray inside the column.">
+                  ?
+                </button>
+              </label>
+              <div class="row">
+                <input id="distilFeed" type="range" min="0.1" max="0.9" step="0.05" value="0.4" />
+                <span id="distilFeedValue" class="value-pill">0.40</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="distilTrays">
+                Number of Trays
+                <button class="info-badge" data-info="Each tray represents one vapour–liquid contact. More trays usually give better separation between top and bottom compositions.">
+                  ?
+                </button>
+              </label>
+              <div class="row">
+                <input id="distilTrays" type="range" min="3" max="25" value="10" />
+                <span id="distilTraysValue" class="value-pill">10</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="distilReflux">
+                Reflux Ratio
+                <button class="info-badge" data-info="The reflux ratio is the ratio of condensed liquid returned to the column relative to distillate withdrawn. Higher reflux improves purity but needs more energy.">
+                  ?
+                </button>
+              </label>
+              <div class="row">
+                <input id="distilReflux" type="range" min="0" max="5" step="0.1" value="2.0" />
+                <span id="distilRefluxValue" class="value-pill">2.00</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="distilHeat">
+                Heat Input (Boil-Up)
+                <button class="info-badge" data-info="This controls how vigorously vapour is generated in the reboiler. In this simplified model it changes the animation speed but not the theoretical compositions.">
+                  ?
+                </button>
+              </label>
+              <div class="row">
+                <input id="distilHeat" type="range" min="0.2" max="1.2" step="0.05" value="0.7" />
+                <span id="distilHeatValue" class="value-pill">0.70</span>
+              </div>
+            </div>
+
+            <div class="control-group metrics">
+              <div class="metric">
+                <div class="metric-label">Top Light Fraction</div>
+                <div class="metric-value" id="distilTopMetric">–</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Bottom Light Fraction</div>
+                <div class="metric-value" id="distilBottomMetric">–</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Separation (xD − xB)</div>
+                <div class="metric-value" id="distilSepMetric">–</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Trays Used</div>
+                <div class="metric-value" id="distilTrayMetric">10</div>
+              </div>
+            </div>
+
+            <div class="control-buttons">
+              <button id="distilPlay" class="primary">Play</button>
+              <button id="distilPause">Pause</button>
+              <button id="distilReset">Reset</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Info Popover -->
+  <div id="infoPopover" class="info-popover" hidden>
+    <button id="infoClose" class="info-close">✕</button>
+    <div id="infoText"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
