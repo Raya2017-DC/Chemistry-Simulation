@@ -1,99 +1,108 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Raya Science Studio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Font -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body class="theme-hub">
   <div id="app">
     <!-- Top Bar -->
     <header class="topbar">
       <div class="brand">
-        <div class="logo-mark"></div>
+        <div class="logo-mark" aria-hidden="true"></div>
         <div>
-          <h1>Raya's Science Studio</h1>
-          <p class="tagline">Interactive simulations for chemistry, physics, and engineering!</p>
+          <h1>Raya Science Studio</h1>
+          <p class="tagline">Interactive simulations for chemistry, physics, and beyond.</p>
         </div>
       </div>
-      <div class="author-chip">Created by Raya Srivastav</div>
+      <div class="author-chip">Raya Srivastav • Science Studio</div>
     </header>
 
     <main>
-      <!-- HUB SCREEN -->
+      <!-- =========================
+           HUB SCREEN
+           ========================= -->
       <section id="hubScreen" class="screen active">
         <div class="hub-intro">
           <div>
             <h2>Choose a Simulation</h2>
             <p>
-              Start with Photocatalysis or explore Fractional Distillation.
-              This hub will eventually host many more simulations.
+              Each simulation opens in its own themed workspace. This hub is built to scale — add 10+ more sims
+              without rewriting the app.
             </p>
           </div>
           <div class="hub-note">
-            <span class="hub-pill">Studio Overview</span>
+            <span class="hub-pill">How to Add Sims</span>
             <p>
-              Each simulation has been made to demonstrate a certain physics, chemistry, or 
-              engineering principle. Email raya.srivastav@gmail.com to sumbit ideas!
+              Paste new simulation HTML into a slot in <b>index.html</b>,
+              add theme CSS in <b>styles.css</b>, and paste the JS module in <b>script.js</b>.
             </p>
           </div>
         </div>
 
-        <!-- Wide rows (horizontal cards) -->
+        <!-- Wide rows -->
         <div class="sim-list">
-          <!-- Photocatalysis row -->
+
           <article class="sim-row sim-photo" data-sim="photocatalysis">
             <div class="sim-row-main">
               <h3>Photocatalysis: Bands → Charges → Radicals</h3>
-              <p>
-                Use light to excite electrons across a band gap, form radicals on a catalyst surface, and
-                watch pollutants disappear over time.
-              </p>
+              <p>Light excites electrons across a bandgap; charges form radicals that break down pollutants.</p>
               <div class="sim-meta">
                 <span class="sim-tag">Chemistry · Light · Surfaces</span>
-                <span class="sim-status">Ready to Run</span>
+                <span class="sim-status">Ready</span>
               </div>
             </div>
             <div class="sim-row-side">
               <div class="sim-preview sim-preview-photo"></div>
-              <button class="sim-row-btn">Open Simulation</button>
+              <button class="sim-row-btn">Open</button>
             </div>
           </article>
 
-          <!-- Fractional Distillation row -->
           <article class="sim-row sim-distil" data-sim="distillation">
             <div class="sim-row-main">
               <h3>Fractional Distillation Tower</h3>
-              <p>
-                Heat a binary liquid, vary the number of trays and reflux ratio, and see how vapour–liquid
-                contact sharpens the separation between top and bottom products.
-              </p>
+              <p>Repeated vapour–liquid contact across trays enriches the top in the more volatile component.</p>
               <div class="sim-meta">
-                <span class="sim-tag">Chemistry · Separation · Thermodynamics</span>
-                <span class="sim-status">Ready to Run</span>
+                <span class="sim-tag">Chemistry · Separation · Phase Change</span>
+                <span class="sim-status">Ready</span>
               </div>
             </div>
             <div class="sim-row-side">
               <div class="sim-preview sim-preview-distil"></div>
-              <button class="sim-row-btn">Open Simulation</button>
+              <button class="sim-row-btn">Open</button>
             </div>
           </article>
 
-          <!-- Future sim row (placeholder) -->
-          <article class="sim-row sim-coming">
+          <article class="sim-row sim-ionx" data-sim="ionExchange">
             <div class="sim-row-main">
-              <h3>Future Simulation (Coming Soon)</h3>
-              <p>
-                This slot is reserved for a future experiment — batteries, enzymes, or whatever I decide
-                to build next.
-              </p>
+              <h3>Ion Exchange Column</h3>
+              <p>Watch ions swap onto resin beads, form an “exchange front,” and see breakthrough when resin exhausts.</p>
               <div class="sim-meta">
-                <span class="sim-tag">In Development</span>
-                <span class="sim-status ghost">Not Yet Available</span>
+                <span class="sim-tag">Chemistry · Ions · Water Treatment</span>
+                <span class="sim-status">Ready</span>
+              </div>
+            </div>
+            <div class="sim-row-side">
+              <div class="sim-preview sim-preview-ionx"></div>
+              <button class="sim-row-btn">Open</button>
+            </div>
+          </article>
+
+          <!-- =========================
+               PLACEHOLDERS (10 slots)
+               Keep these. Replace one at a time later.
+               ========================= -->
+          <article class="sim-row sim-coming" data-sim="sim4">
+            <div class="sim-row-main">
+              <h3>Simulation 4 (Coming Soon)</h3>
+              <p>Reserved slot. Later, replace this description + activate in the registry.</p>
+              <div class="sim-meta">
+                <span class="sim-tag">Reserved</span>
+                <span class="sim-status ghost">Coming Soon</span>
               </div>
             </div>
             <div class="sim-row-side">
@@ -101,10 +110,133 @@
               <button class="sim-row-btn" disabled>Coming Soon</button>
             </div>
           </article>
+
+          <article class="sim-row sim-coming" data-sim="sim5">
+            <div class="sim-row-main">
+              <h3>Simulation 5 (Coming Soon)</h3>
+              <p>Reserved slot.</p>
+              <div class="sim-meta">
+                <span class="sim-tag">Reserved</span>
+                <span class="sim-status ghost">Coming Soon</span>
+              </div>
+            </div>
+            <div class="sim-row-side">
+              <div class="sim-preview sim-preview-placeholder"></div>
+              <button class="sim-row-btn" disabled>Coming Soon</button>
+            </div>
+          </article>
+
+          <article class="sim-row sim-coming" data-sim="sim6">
+            <div class="sim-row-main">
+              <h3>Simulation 6 (Coming Soon)</h3>
+              <p>Reserved slot.</p>
+              <div class="sim-meta">
+                <span class="sim-tag">Reserved</span>
+                <span class="sim-status ghost">Coming Soon</span>
+              </div>
+            </div>
+            <div class="sim-row-side">
+              <div class="sim-preview sim-preview-placeholder"></div>
+              <button class="sim-row-btn" disabled>Coming Soon</button>
+            </div>
+          </article>
+
+          <article class="sim-row sim-coming" data-sim="sim7">
+            <div class="sim-row-main">
+              <h3>Simulation 7 (Coming Soon)</h3>
+              <p>Reserved slot.</p>
+              <div class="sim-meta">
+                <span class="sim-tag">Reserved</span>
+                <span class="sim-status ghost">Coming Soon</span>
+              </div>
+            </div>
+            <div class="sim-row-side">
+              <div class="sim-preview sim-preview-placeholder"></div>
+              <button class="sim-row-btn" disabled>Coming Soon</button>
+            </div>
+          </article>
+
+          <article class="sim-row sim-coming" data-sim="sim8">
+            <div class="sim-row-main">
+              <h3>Simulation 8 (Coming Soon)</h3>
+              <p>Reserved slot.</p>
+              <div class="sim-meta">
+                <span class="sim-tag">Reserved</span>
+                <span class="sim-status ghost">Coming Soon</span>
+              </div>
+            </div>
+            <div class="sim-row-side">
+              <div class="sim-preview sim-preview-placeholder"></div>
+              <button class="sim-row-btn" disabled>Coming Soon</button>
+            </div>
+          </article>
+
+          <article class="sim-row sim-coming" data-sim="sim9">
+            <div class="sim-row-main">
+              <h3>Simulation 9 (Coming Soon)</h3>
+              <p>Reserved slot.</p>
+              <div class="sim-meta">
+                <span class="sim-tag">Reserved</span>
+                <span class="sim-status ghost">Coming Soon</span>
+              </div>
+            </div>
+            <div class="sim-row-side">
+              <div class="sim-preview sim-preview-placeholder"></div>
+              <button class="sim-row-btn" disabled>Coming Soon</button>
+            </div>
+          </article>
+
+          <article class="sim-row sim-coming" data-sim="sim10">
+            <div class="sim-row-main">
+              <h3>Simulation 10 (Coming Soon)</h3>
+              <p>Reserved slot.</p>
+              <div class="sim-meta">
+                <span class="sim-tag">Reserved</span>
+                <span class="sim-status ghost">Coming Soon</span>
+              </div>
+            </div>
+            <div class="sim-row-side">
+              <div class="sim-preview sim-preview-placeholder"></div>
+              <button class="sim-row-btn" disabled>Coming Soon</button>
+            </div>
+          </article>
+
+          <article class="sim-row sim-coming" data-sim="sim11">
+            <div class="sim-row-main">
+              <h3>Simulation 11 (Coming Soon)</h3>
+              <p>Reserved slot.</p>
+              <div class="sim-meta">
+                <span class="sim-tag">Reserved</span>
+                <span class="sim-status ghost">Coming Soon</span>
+              </div>
+            </div>
+            <div class="sim-row-side">
+              <div class="sim-preview sim-preview-placeholder"></div>
+              <button class="sim-row-btn" disabled>Coming Soon</button>
+            </div>
+          </article>
+
+          <article class="sim-row sim-coming" data-sim="sim12">
+            <div class="sim-row-main">
+              <h3>Simulation 12 (Coming Soon)</h3>
+              <p>Reserved slot.</p>
+              <div class="sim-meta">
+                <span class="sim-tag">Reserved</span>
+                <span class="sim-status ghost">Coming Soon</span>
+              </div>
+            </div>
+            <div class="sim-row-side">
+              <div class="sim-preview sim-preview-placeholder"></div>
+              <button class="sim-row-btn" disabled>Coming Soon</button>
+            </div>
+          </article>
+
         </div>
       </section>
 
-      <!-- SIMULATION SCREEN -->
+      <!-- =========================
+           SIMULATION SCREEN (router)
+           ========================= -->
       <section id="simScreen" class="screen" hidden>
         <div class="sim-header-row">
           <button id="backToHub" class="back-btn">← All Simulations</button>
@@ -115,55 +247,40 @@
           <div id="simThemeLabel" class="sim-theme-label">Theme</div>
         </div>
 
-        <!-- Photocatalysis Layout -->
-        <div id="simPhotocatalysis" class="sim-layout" hidden>
+        <!-- =========================================================
+             SIM SLOT 1: Photocatalysis (HTML lives here)
+             ========================================================= -->
+        <div id="sim-photocatalysis" class="sim-layout" hidden>
+          <!-- (Same structure style as before; kept compatible with old IDs) -->
           <section class="sim-canvas-card">
             <canvas id="photoCanvas" aria-label="Photocatalysis Visualization"></canvas>
 
-            <div class="legend-bar">
-              <div class="legend-item">
-                <span class="dot electron"></span> Electron (Conduction Band)
-              </div>
-              <div class="legend-item">
-                <span class="dot hole"></span> Hole (Valence Band)
-              </div>
-              <div class="legend-item">
-                <span class="dot oh"></span> •OH Radical
-              </div>
-              <div class="legend-item">
-                <span class="dot o2m"></span> O₂•⁻ Radical
-              </div>
+            <div class="legend-bar legend-right">
+              <div class="legend-title">Key</div>
+              <div class="legend-item"><span class="dot electron"></span> Electron</div>
+              <div class="legend-item"><span class="dot hole"></span> Hole</div>
+              <div class="legend-item"><span class="dot oh"></span> •OH Radical</div>
+              <div class="legend-item"><span class="dot o2m"></span> O₂•⁻ Radical</div>
             </div>
 
             <div class="pollutant-panel">
               <div class="poll-header">
                 <span>Pollutant Near Surface</span>
-                <button class="info-badge" data-info="This bar represents the fraction of pollutant still present near the catalyst surface. It decreases when radicals form and when excitation is active.">
-                  ?
-                </button>
+                <button class="info-badge" data-info="This bar represents pollutant remaining near the catalyst surface. It decreases when radicals form and when excitation is active.">?</button>
               </div>
-              <div class="poll-bar">
-                <div id="photoPollFill" class="poll-fill"></div>
-              </div>
-              <div class="poll-text">
-                <span id="photoPollText">100%</span> Remaining
-              </div>
+              <div class="poll-bar"><div id="photoPollFill" class="poll-fill"></div></div>
+              <div class="poll-text"><span id="photoPollText">100%</span> Remaining</div>
             </div>
 
-            <p class="sim-footnote">
-              Hint: Reduce the wavelength and increase the intensity to see more excitations and faster pollutant removal.
-            </p>
+            <p class="sim-footnote">Tip: Lower wavelength (more energy) and increase intensity to trigger more excitations.</p>
           </section>
 
           <aside class="sim-controls-card">
             <h3>Photocatalysis Controls</h3>
 
             <div class="control-group">
-              <label for="photoMaterial">
-                Material
-                <button class="info-badge" data-info="Different semiconductor photocatalysts have different bandgaps Eg. TiO₂ and ZnO mainly absorb UV, while Fe₂O₃ can absorb some visible light.">
-                  ?
-                </button>
+              <label for="photoMaterial">Material
+                <button class="info-badge" data-info="Different photocatalysts have different bandgaps Eg. Smaller Eg means visible light can excite electrons more easily.">?</button>
               </label>
               <select id="photoMaterial">
                 <option value="tio2">TiO₂ (≈ 3.2 eV)</option>
@@ -173,11 +290,8 @@
             </div>
 
             <div class="control-group">
-              <label for="photoDoping">
-                Doping (Bandgap Shift)
-                <button class="info-badge" data-info="Doping means adding small amounts of other elements to the crystal. Here we treat it as a slight decrease in Eg, allowing lower-energy photons to excite electrons.">
-                  ?
-                </button>
+              <label for="photoDoping">Doping (Bandgap Shift)
+                <button class="info-badge" data-info="Doping means adding small amounts of other atoms to a crystal. Here it slightly reduces Eg so lower-energy light can excite electrons.">?</button>
               </label>
               <div class="row">
                 <input id="photoDoping" type="range" min="0" max="100" value="0" />
@@ -186,11 +300,8 @@
             </div>
 
             <div class="control-group">
-              <label for="photoWavelength">
-                Wavelength λ (nm)
-                <button class="info-badge" data-info="Photon energy (in eV) is approximately 1240 / λ(nm). Shorter wavelength = higher energy. Excitation occurs when photon energy ≥ Eg.">
-                  ?
-                </button>
+              <label for="photoWavelength">Wavelength λ (nm)
+                <button class="info-badge" data-info="Photon energy (eV) ≈ 1240 / λ(nm). Excitation happens when photon energy ≥ Eg.">?</button>
               </label>
               <div class="row">
                 <input id="photoWavelength" type="range" min="350" max="800" value="550" />
@@ -200,11 +311,8 @@
             </div>
 
             <div class="control-group">
-              <label for="photoIntensity">
-                Light Intensity
-                <button class="info-badge" data-info="Intensity represents how many photons arrive per second. When E ≥ Eg, higher intensity means more electron–hole pairs.">
-                  ?
-                </button>
+              <label for="photoIntensity">Light Intensity
+                <button class="info-badge" data-info="Higher intensity means more photons per second. If E ≥ Eg, that produces more electron–hole pairs.">?</button>
               </label>
               <div class="row">
                 <input id="photoIntensity" type="range" min="0" max="1" step="0.01" value="0.4" />
@@ -215,28 +323,16 @@
             <div class="control-group">
               <label>Surface Species</label>
               <div class="row">
-                <label class="toggle">
-                  <input id="photoHasO2" type="checkbox" checked />
-                  O₂ Present
-                </label>
-                <label class="toggle">
-                  <input id="photoHasH2O" type="checkbox" checked />
-                  H₂O Present
-                </label>
+                <label class="toggle"><input id="photoHasO2" type="checkbox" checked /> O₂ Present</label>
+                <label class="toggle"><input id="photoHasH2O" type="checkbox" checked /> H₂O Present</label>
               </div>
             </div>
 
             <div class="control-group">
               <label>Display and Speed</label>
               <div class="row">
-                <label class="toggle">
-                  <input id="photoShowPhotons" type="checkbox" checked />
-                  Show Photons
-                </label>
-                <label class="toggle">
-                  <input id="photoShowTrails" type="checkbox" />
-                  Extra Trails
-                </label>
+                <label class="toggle"><input id="photoShowPhotons" type="checkbox" checked /> Show Photons</label>
+                <label class="toggle"><input id="photoShowTrails" type="checkbox" /> Extra Trails</label>
               </div>
               <div class="row">
                 <span class="speed-label">Speed:</span>
@@ -249,22 +345,10 @@
             </div>
 
             <div class="control-group metrics">
-              <div class="metric">
-                <div class="metric-label">Eg (Effective)</div>
-                <div class="metric-value" id="photoEgValue">–</div>
-              </div>
-              <div class="metric">
-                <div class="metric-label">Photon Energy</div>
-                <div class="metric-value" id="photoEphValue">–</div>
-              </div>
-              <div class="metric">
-                <div class="metric-label">Excitations / s</div>
-                <div class="metric-value" id="photoRateValue">0</div>
-              </div>
-              <div class="metric">
-                <div class="metric-label">Radicals Formed</div>
-                <div class="metric-value" id="photoRadValue">0</div>
-              </div>
+              <div class="metric"><div class="metric-label">Eg (Effective)</div><div class="metric-value" id="photoEgValue">–</div></div>
+              <div class="metric"><div class="metric-label">Photon Energy</div><div class="metric-value" id="photoEphValue">–</div></div>
+              <div class="metric"><div class="metric-label">Excitations / s</div><div class="metric-value" id="photoRateValue">0</div></div>
+              <div class="metric"><div class="metric-label">Radicals Formed</div><div class="metric-value" id="photoRadValue">0</div></div>
             </div>
 
             <div class="control-group">
@@ -280,72 +364,54 @@
           </aside>
         </div>
 
-        <!-- Fractional Distillation Layout -->
-        <div id="simDistillation" class="sim-layout" hidden>
+        <!-- =========================================================
+             SIM SLOT 2: Distillation (HTML lives here)
+             ========================================================= -->
+        <div id="sim-distillation" class="sim-layout" hidden>
           <section class="sim-canvas-card">
             <canvas id="distilCanvas" aria-label="Fractional Distillation Column"></canvas>
 
-            <div class="legend-bar">
-              <div class="legend-item">
-                <span class="tray-color tray-top"></span> Top (Distillate, Light Component)
-              </div>
-              <div class="legend-item">
-                <span class="tray-color tray-bottom"></span> Bottom (Heavy Component)
-              </div>
-              <div class="legend-item">
-                <span class="bubble-dot"></span> Rising Vapour
-              </div>
-              <div class="legend-item">
-                <span class="drop-dot"></span> Falling Liquid
-              </div>
+            <div class="legend-bar legend-right">
+              <div class="legend-title">Key</div>
+              <div class="legend-item"><span class="tray-color tray-top"></span> Light-Rich</div>
+              <div class="legend-item"><span class="tray-color tray-bottom"></span> Heavy-Rich</div>
+              <div class="legend-item"><span class="bubble-dot"></span> Rising Vapour</div>
+              <div class="legend-item"><span class="drop-dot"></span> Falling Liquid</div>
             </div>
 
             <div class="distil-purity-panel">
               <div class="purity-block">
                 <h4>Distillate Purity</h4>
-                <div class="purity-bar">
-                  <div id="distilTopFill" class="purity-fill top"></div>
-                </div>
+                <div class="purity-bar"><div id="distilTopFill" class="purity-fill top"></div></div>
                 <p><span id="distilTopValue">–</span> Light Component</p>
               </div>
               <div class="purity-block">
                 <h4>Bottoms Purity</h4>
-                <div class="purity-bar">
-                  <div id="distilBottomFill" class="purity-fill bottom"></div>
-                </div>
+                <div class="purity-bar"><div id="distilBottomFill" class="purity-fill bottom"></div></div>
                 <p><span id="distilBottomValue">–</span> Light Component</p>
               </div>
             </div>
 
-            <p class="sim-footnote">
-              Idea: More trays and a higher reflux ratio make the top product richer in the more volatile
-              component, while the bottoms become heavier.
-            </p>
+            <p class="sim-footnote">More trays + higher reflux → stronger separation (top gets lighter, bottom gets heavier).</p>
           </section>
 
-          <aside class="sim-controls-card crimson">
+          <aside class="sim-controls-card">
             <h3>Distillation Controls</h3>
 
             <div class="control-group">
-              <label for="distilMixture">
-                Mixture Preset
-                <button class="info-badge" data-info="Each preset represents a binary mixture with a certain relative volatility. Larger α means an easier separation.">
-                  ?
-                </button>
+              <label for="distilMixture">Mixture Preset
+                <button class="info-badge" data-info="Different mixtures have different separability. You can also choose Custom and set relative volatility yourself.">?</button>
               </label>
               <select id="distilMixture">
-                <option value="hex- hep">Hexane / Heptane</option>
-                <option value="tol- eth">Toluene / Ethylbenzene</option>
-                <option value="custom">Custom Relative Volatility</option>
+                <option value="hex_hep">Hexane / Heptane</option>
+                <option value="tol_eth">Toluene / Ethylbenzene</option>
+                <option value="custom">Custom</option>
               </select>
             </div>
 
             <div class="control-group">
-              <label for="distilAlpha">
-                Relative Volatility (α)
-                <button class="info-badge" data-info="Relative volatility α measures how much more volatile the light component is compared with the heavy one. α > 1 is required for separation.">
-                  ?
-                </button>
+              <label for="distilAlpha">Relative Volatility (α)
+                <button class="info-badge" data-info="α measures how much more the light component prefers the vapour phase than the heavy component. Larger α → easier separation.">?</button>
               </label>
               <div class="row">
                 <input id="distilAlpha" type="range" min="1.1" max="3.0" step="0.05" value="1.8" />
@@ -354,11 +420,8 @@
             </div>
 
             <div class="control-group">
-              <label for="distilFeed">
-                Feed Composition (Light Component)
-                <button class="info-badge" data-info="This is the mole fraction of the more volatile component in the feed. It appears at the feed tray inside the column.">
-                  ?
-                </button>
+              <label for="distilFeed">Feed Composition (Light Fraction)
+                <button class="info-badge" data-info="This is the fraction of the light component in the feed entering the column.">?</button>
               </label>
               <div class="row">
                 <input id="distilFeed" type="range" min="0.1" max="0.9" step="0.05" value="0.4" />
@@ -367,11 +430,8 @@
             </div>
 
             <div class="control-group">
-              <label for="distilTrays">
-                Number of Trays
-                <button class="info-badge" data-info="Each tray represents one vapour–liquid contact. More trays usually give better separation between top and bottom compositions.">
-                  ?
-                </button>
+              <label for="distilTrays">Number of Trays
+                <button class="info-badge" data-info="Each tray is a stage where rising vapour and falling liquid contact and partially re-equilibrate. More trays → better separation.">?</button>
               </label>
               <div class="row">
                 <input id="distilTrays" type="range" min="3" max="25" value="10" />
@@ -380,11 +440,8 @@
             </div>
 
             <div class="control-group">
-              <label for="distilReflux">
-                Reflux Ratio
-                <button class="info-badge" data-info="The reflux ratio is the ratio of condensed liquid returned to the column relative to distillate withdrawn. Higher reflux improves purity but needs more energy.">
-                  ?
-                </button>
+              <label for="distilReflux">Reflux Ratio
+                <button class="info-badge" data-info="Higher reflux sends more condensed liquid back down the column, washing heavies downward and sharpening purity at the top.">?</button>
               </label>
               <div class="row">
                 <input id="distilReflux" type="range" min="0" max="5" step="0.1" value="2.0" />
@@ -393,11 +450,8 @@
             </div>
 
             <div class="control-group">
-              <label for="distilHeat">
-                Heat Input (Boil-Up)
-                <button class="info-badge" data-info="This controls how vigorously vapour is generated in the reboiler. In this simplified model it changes the animation speed but not the theoretical compositions.">
-                  ?
-                </button>
+              <label for="distilHeat">Heat Input (Boil-Up)
+                <button class="info-badge" data-info="Heat controls how vigorously vapour rises (animation rate). In this conceptual model it mainly changes motion intensity.">?</button>
               </label>
               <div class="row">
                 <input id="distilHeat" type="range" min="0.2" max="1.2" step="0.05" value="0.7" />
@@ -406,22 +460,10 @@
             </div>
 
             <div class="control-group metrics">
-              <div class="metric">
-                <div class="metric-label">Top Light Fraction</div>
-                <div class="metric-value" id="distilTopMetric">–</div>
-              </div>
-              <div class="metric">
-                <div class="metric-label">Bottom Light Fraction</div>
-                <div class="metric-value" id="distilBottomMetric">–</div>
-              </div>
-              <div class="metric">
-                <div class="metric-label">Separation (xD − xB)</div>
-                <div class="metric-value" id="distilSepMetric">–</div>
-              </div>
-              <div class="metric">
-                <div class="metric-label">Trays Used</div>
-                <div class="metric-value" id="distilTrayMetric">10</div>
-              </div>
+              <div class="metric"><div class="metric-label">Top Light Fraction</div><div class="metric-value" id="distilTopMetric">–</div></div>
+              <div class="metric"><div class="metric-label">Bottom Light Fraction</div><div class="metric-value" id="distilBottomMetric">–</div></div>
+              <div class="metric"><div class="metric-label">Separation (xD − xB)</div><div class="metric-value" id="distilSepMetric">–</div></div>
+              <div class="metric"><div class="metric-label">Trays Used</div><div class="metric-value" id="distilTrayMetric">10</div></div>
             </div>
 
             <div class="control-buttons">
@@ -431,6 +473,188 @@
             </div>
           </aside>
         </div>
+
+        <!-- =========================================================
+             SIM SLOT 3: Ion Exchange (NEW)
+             ========================================================= -->
+        <div id="sim-ionExchange" class="sim-layout" hidden>
+          <section class="sim-canvas-card">
+            <canvas id="ionCanvas" aria-label="Ion Exchange Column"></canvas>
+
+            <div class="legend-bar legend-right">
+              <div class="legend-title">Key</div>
+              <div class="legend-item"><span class="ix-dot ix-light"></span> Incoming Ion (Target)</div>
+              <div class="legend-item"><span class="ix-dot ix-reg"></span> Resin Ion (Initial)</div>
+              <div class="legend-item"><span class="ix-dot ix-out"></span> Exchanged Ion (Leaving)</div>
+              <div class="legend-item"><span class="ix-front"></span> Exchange Front</div>
+            </div>
+
+            <div class="ix-panels">
+              <div class="ix-panel">
+                <div class="ix-panel-head">
+                  <span>Effluent (Outlet) Concentration</span>
+                  <button class="info-badge" data-info="This bar shows how much target ion is getting through the resin. Early on it is low. When the resin saturates, the target ion breaks through and rises toward 100%.">?</button>
+                </div>
+                <div class="poll-bar"><div id="ionEffFill" class="poll-fill ix-eff"></div></div>
+                <div class="poll-text"><span id="ionEffText">0%</span> Target Ion in Outlet</div>
+              </div>
+
+              <div class="ix-panel">
+                <div class="ix-panel-head">
+                  <span>Resin Capacity Used</span>
+                  <button class="info-badge" data-info="Resin has a limited number of charged sites. As more target ions bind, capacity is used up. When it reaches 100%, the column can no longer remove target ion effectively.">?</button>
+                </div>
+                <div class="poll-bar"><div id="ionCapFill" class="poll-fill ix-cap"></div></div>
+                <div class="poll-text"><span id="ionCapText">0%</span> Used</div>
+              </div>
+            </div>
+
+            <p class="sim-footnote">
+              Tip: Slow flow + high selectivity → sharper removal and later breakthrough. Try “Regenerate” after exhaustion.
+            </p>
+          </section>
+
+          <aside class="sim-controls-card">
+            <h3>Ion Exchange Controls</h3>
+
+            <div class="control-group">
+              <label for="ionResinType">Resin Type
+                <button class="info-badge" data-info="Cation exchange resin has fixed negative sites and swaps positive ions (Na⁺, Ca²⁺). Anion exchange resin has fixed positive sites and swaps negative ions (Cl⁻, NO₃⁻).">?</button>
+              </label>
+              <select id="ionResinType">
+                <option value="cation">Cation Exchange</option>
+                <option value="anion">Anion Exchange</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label for="ionSystem">Scenario
+                <button class="info-badge" data-info="Pick a scenario: Water Softening swaps Ca²⁺ onto resin (starting with Na⁺). Nitrate Removal swaps NO₃⁻ onto resin (starting with Cl⁻).">?</button>
+              </label>
+              <select id="ionSystem">
+                <option value="softening">Water Softening (Ca²⁺ in, Na⁺ out)</option>
+                <option value="nitrate">Nitrate Removal (NO₃⁻ in, Cl⁻ out)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label for="ionFlow">Flow Rate
+                <button class="info-badge" data-info="Flow rate controls how long ions spend in the resin bed. Faster flow gives less contact time → earlier breakthrough.">?</button>
+              </label>
+              <div class="row">
+                <input id="ionFlow" type="range" min="0.2" max="2.0" step="0.05" value="0.9" />
+                <span id="ionFlowValue" class="value-pill">0.90×</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="ionCapacity">Resin Capacity
+                <button class="info-badge" data-info="Capacity is the number of exchange sites available. Higher capacity delays breakthrough because the resin can capture more target ions before exhausting.">?</button>
+              </label>
+              <div class="row">
+                <input id="ionCapacity" type="range" min="0.6" max="2.0" step="0.05" value="1.0" />
+                <span id="ionCapacityValue" class="value-pill">1.00×</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="ionSelectivity">Selectivity
+                <button class="info-badge" data-info="Selectivity models how strongly the resin prefers the target ion compared to the initial resin ion. Higher selectivity makes the exchange front sharper and improves removal.">?</button>
+              </label>
+              <div class="row">
+                <input id="ionSelectivity" type="range" min="0.6" max="2.2" step="0.05" value="1.2" />
+                <span id="ionSelValue" class="value-pill">1.20×</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="ionInfluent">Influent Concentration
+                <button class="info-badge" data-info="This sets how much target ion enters the column per second. Higher influent loads the resin faster → earlier breakthrough.">?</button>
+              </label>
+              <div class="row">
+                <input id="ionInfluent" type="range" min="0.4" max="2.0" step="0.05" value="1.0" />
+                <span id="ionInflValue" class="value-pill">1.00×</span>
+              </div>
+            </div>
+
+            <div class="control-group metrics">
+              <div class="metric"><div class="metric-label">Front Depth</div><div class="metric-value" id="ionFrontMetric">–</div></div>
+              <div class="metric"><div class="metric-label">Outlet Target</div><div class="metric-value" id="ionOutMetric">0%</div></div>
+              <div class="metric"><div class="metric-label">Capacity Used</div><div class="metric-value" id="ionCapMetric">0%</div></div>
+              <div class="metric"><div class="metric-label">State</div><div class="metric-value" id="ionStateMetric">Filtering</div></div>
+            </div>
+
+            <div class="control-buttons">
+              <button id="ionPlay" class="primary">Play</button>
+              <button id="ionPause">Pause</button>
+              <button id="ionReset">Reset</button>
+              <button id="ionRegen">Regenerate</button>
+            </div>
+          </aside>
+        </div>
+
+        <!-- =========================================================
+             SIM SLOTS 4–12 (EMPTY PLACEHOLDERS)
+             Paste future sim HTML into these and register in script.js
+             ========================================================= -->
+
+        <!-- === SLOT 4 HTML INSERT START === -->
+        <div id="sim-sim4" class="sim-layout" hidden>
+          <section class="sim-canvas-card">
+            <div class="placeholder-card">
+              <h3>Simulation 4</h3>
+              <p>This slot is reserved. Paste the simulation HTML here when ready.</p>
+            </div>
+          </section>
+          <aside class="sim-controls-card">
+            <h3>Controls</h3>
+            <div class="placeholder-card small">
+              <p>Paste controls here.</p>
+            </div>
+          </aside>
+        </div>
+        <!-- === SLOT 4 HTML INSERT END === -->
+
+        <div id="sim-sim5" class="sim-layout" hidden>
+          <section class="sim-canvas-card"><div class="placeholder-card"><h3>Simulation 5</h3><p>Reserved slot.</p></div></section>
+          <aside class="sim-controls-card"><h3>Controls</h3><div class="placeholder-card small"><p>Reserved.</p></div></aside>
+        </div>
+
+        <div id="sim-sim6" class="sim-layout" hidden>
+          <section class="sim-canvas-card"><div class="placeholder-card"><h3>Simulation 6</h3><p>Reserved slot.</p></div></section>
+          <aside class="sim-controls-card"><h3>Controls</h3><div class="placeholder-card small"><p>Reserved.</p></div></aside>
+        </div>
+
+        <div id="sim-sim7" class="sim-layout" hidden>
+          <section class="sim-canvas-card"><div class="placeholder-card"><h3>Simulation 7</h3><p>Reserved slot.</p></div></section>
+          <aside class="sim-controls-card"><h3>Controls</h3><div class="placeholder-card small"><p>Reserved.</p></div></aside>
+        </div>
+
+        <div id="sim-sim8" class="sim-layout" hidden>
+          <section class="sim-canvas-card"><div class="placeholder-card"><h3>Simulation 8</h3><p>Reserved slot.</p></div></section>
+          <aside class="sim-controls-card"><h3>Controls</h3><div class="placeholder-card small"><p>Reserved.</p></div></aside>
+        </div>
+
+        <div id="sim-sim9" class="sim-layout" hidden>
+          <section class="sim-canvas-card"><div class="placeholder-card"><h3>Simulation 9</h3><p>Reserved slot.</p></div></section>
+          <aside class="sim-controls-card"><h3>Controls</h3><div class="placeholder-card small"><p>Reserved.</p></div></aside>
+        </div>
+
+        <div id="sim-sim10" class="sim-layout" hidden>
+          <section class="sim-canvas-card"><div class="placeholder-card"><h3>Simulation 10</h3><p>Reserved slot.</p></div></section>
+          <aside class="sim-controls-card"><h3>Controls</h3><div class="placeholder-card small"><p>Reserved.</p></div></aside>
+        </div>
+
+        <div id="sim-sim11" class="sim-layout" hidden>
+          <section class="sim-canvas-card"><div class="placeholder-card"><h3>Simulation 11</h3><p>Reserved slot.</p></div></section>
+          <aside class="sim-controls-card"><h3>Controls</h3><div class="placeholder-card small"><p>Reserved.</p></div></aside>
+        </div>
+
+        <div id="sim-sim12" class="sim-layout" hidden>
+          <section class="sim-canvas-card"><div class="placeholder-card"><h3>Simulation 12</h3><p>Reserved slot.</p></div></section>
+          <aside class="sim-controls-card"><h3>Controls</h3><div class="placeholder-card small"><p>Reserved.</p></div></aside>
+        </div>
+
       </section>
     </main>
   </div>
