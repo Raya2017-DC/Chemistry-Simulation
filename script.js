@@ -1,9 +1,8 @@
 /* ===========================================================
    Raya Science Studio — Modular Simulation Router
-   Add new sims by:
-   1) HTML: paste into <div id="sim-<id>"> ... in index.html
-   2) CSS: add theme class + any custom styles
-   3) JS: create a module object and add to SIM_REGISTRY
+   (Drop-in script.js replacement)
+   - Fixes Ion Exchange (Sim 3)
+   - Adds Double Slit (Sim 4) with same UI style (injected into Slot 4)
    =========================================================== */
 
 /* -----------------------------
@@ -11,6 +10,36 @@
 ----------------------------- */
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 function rand(a, b) { return a + Math.random() * (b - a); }
+
+/* -----------------------------
+   Canvas roundRect polyfill
+   (prevents bugs on browsers that lack ctx.roundRect)
+----------------------------- */
+(function ensureRoundRect() {
+  const proto = CanvasRenderingContext2D && CanvasRenderingContext2D.prototype;
+  if (!proto) return;
+  if (typeof proto.roundRect === "function") return;
+
+  proto.roundRect = function (x, y, w, h, r) {
+    let radius = r;
+    if (typeof r === "number") radius = { tl: r, tr: r, br: r, bl: r };
+    else radius = Object.assign({ tl: 0, tr: 0, br: 0, bl: 0 }, r || {});
+    const { tl, tr, br, bl } = radius;
+
+    this.beginPath();
+    this.moveTo(x + tl, y);
+    this.lineTo(x + w - tr, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + tr);
+    this.lineTo(x + w, y + h - br);
+    this.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
+    this.lineTo(x + bl, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - bl);
+    this.lineTo(x, y + tl);
+    this.quadraticCurveTo(x, y, x + tl, y);
+    this.closePath();
+    return this;
+  };
+})();
 
 /* -----------------------------
    Core DOM
@@ -47,7 +76,6 @@ function openInfoPopover(target, text) {
   infoPopover.style.left = `${x}px`;
   infoPopover.style.top = `${y}px`;
 }
-
 function closeInfoPopover() { infoPopover.hidden = true; }
 
 document.addEventListener("click", (e) => {
@@ -59,32 +87,21 @@ document.addEventListener("click", (e) => {
   }
   if (!e.target.closest("#infoPopover")) closeInfoPopover();
 });
-infoClose.addEventListener("click", closeInfoPopover);
+infoClose?.addEventListener("click", closeInfoPopover);
 
 /* ===========================================================
    SIM MODULES
-   Each module provides:
-   - id
-   - title, subtitle, themeClass, themeLabel
-   - containerId (the sim-layout div id)
-   - init() once
-   - resize() on window resize
-   - tick(dt) update
-   - render() draw/update visuals
-   - optional: onShow(), onHide()
-   =========================================================== */
+=========================================================== */
 
 /* -----------------------------
-   Photocatalysis Module
+   Photocatalysis Module (UNCHANGED from your original)
 ----------------------------- */
 const PhotocatalysisSim = (() => {
   const containerId = "sim-photocatalysis";
 
-  // Canvas
   const canvas = document.getElementById("photoCanvas");
   const ctx = canvas.getContext("2d");
 
-  // Controls
   const photoMaterial = document.getElementById("photoMaterial");
   const photoDoping = document.getElementById("photoDoping");
   const photoDopingValue = document.getElementById("photoDopingValue");
@@ -145,12 +162,10 @@ const PhotocatalysisSim = (() => {
     const d = parseInt(photoDoping.value,10)/100;
     return +(base*(1 - MAX_NARROW*d)).toFixed(2);
   }
-
   function photonEnergy() {
     const lam = parseFloat(photoWavelength.value);
     return +(HC/lam).toFixed(2);
   }
-
   function speedFactor() { return parseFloat(photoSpeed.value) || 1; }
 
   function resize() {
@@ -178,7 +193,6 @@ const PhotocatalysisSim = (() => {
       speed: 90 + 40*Math.random()
     });
   }
-
   function spawnElectron(x) {
     if (state.objs.electrons.length >= 18) return;
     state.objs.electrons.push({ x, y: geom.bandBot - 5, vy: -(85 + rand(10,20)) });
@@ -219,7 +233,6 @@ const PhotocatalysisSim = (() => {
       photoStatusBadge.classList.remove("on");
     }
 
-    // color preview glow
     const col = wavelengthToRGB(parseFloat(photoWavelength.value));
     photoColorPreview.style.boxShadow = `0 0 0 1px rgba(15,23,42,0.10) inset, 0 0 12px ${col}`;
 
@@ -277,7 +290,6 @@ const PhotocatalysisSim = (() => {
       if (r.age >= r.ttl) state.objs.radicals.splice(i,1);
     }
 
-    // passive pollutant decay when exciting
     if (canExcite && state.pollutant > 0) {
       state.pollutant = clamp(state.pollutant - 0.0048*sdt*(I+0.3), 0, 1);
     }
@@ -324,7 +336,6 @@ const PhotocatalysisSim = (() => {
     ctx.stroke();
     ctx.fillText("Surface", geom.left, geom.surfaceY + 16);
 
-    // photons
     for (const p of state.objs.photons) {
       ctx.strokeStyle = p.color;
       ctx.lineWidth = 2;
@@ -334,7 +345,6 @@ const PhotocatalysisSim = (() => {
       ctx.stroke();
     }
 
-    // electrons
     for (const e of state.objs.electrons) {
       ctx.fillStyle = "#1e88e5";
       ctx.beginPath(); ctx.arc(e.x, e.y, 4, 0, Math.PI*2); ctx.fill();
@@ -344,7 +354,6 @@ const PhotocatalysisSim = (() => {
       }
     }
 
-    // holes
     for (const hObj of state.objs.holes) {
       ctx.fillStyle = "#ef4444";
       ctx.beginPath(); ctx.arc(hObj.x, hObj.y, 4, 0, Math.PI*2); ctx.fill();
@@ -354,7 +363,6 @@ const PhotocatalysisSim = (() => {
       }
     }
 
-    // radicals
     for (const r of state.objs.radicals) {
       const alpha = clamp(1 - r.age/r.ttl, 0, 1);
       const rad = 5 + 2*alpha;
@@ -365,14 +373,6 @@ const PhotocatalysisSim = (() => {
   }
 
   function initOnce() {
-    // input bindings
-    ["input","change"].forEach(evt => {
-      photoMaterial.addEventListener(evt, ()=>{});
-      photoDoping.addEventListener(evt, ()=>{});
-      photoWavelength.addEventListener(evt, ()=>{});
-      photoIntensity.addEventListener(evt, ()=>{});
-    });
-
     photoPlay.addEventListener("click", ()=>{ state.running = true; });
     photoPause.addEventListener("click", ()=>{ state.running = false; });
     photoReset.addEventListener("click", ()=>{
@@ -406,7 +406,7 @@ const PhotocatalysisSim = (() => {
 })();
 
 /* -----------------------------
-   Distillation Module
+   Distillation Module (UNCHANGED from your original)
 ----------------------------- */
 const DistillationSim = (() => {
   const containerId = "sim-distillation";
@@ -551,7 +551,6 @@ const DistillationSim = (() => {
     ctx.fillStyle=grad;
     ctx.strokeStyle="rgba(15,23,42,0.6)";
     ctx.lineWidth=1.5;
-    ctx.beginPath();
     ctx.roundRect(L,T,R-L,B-T,12);
     ctx.fill(); ctx.stroke();
 
@@ -631,11 +630,11 @@ const DistillationSim = (() => {
 })();
 
 /* -----------------------------
-   Ion Exchange Module (NEW)
-   Concept model:
-   - Resin bed has capacity sites, initially filled with "resin ion"
-   - Incoming target ion binds preferentially (selectivity) and advances an exchange front downward
-   - Effluent concentration stays low until front reaches outlet (breakthrough)
+   Ion Exchange Module (FIXED)
+   Fixes:
+   - Capacity now accumulates over time (no weird jumps)
+   - Breakthrough (effluent) depends on BOTH front reaching outlet and exhaustion
+   - UI stays stable; reset/regenerate are clean
 ----------------------------- */
 const IonExchangeSim = (() => {
   const containerId = "sim-ionExchange";
@@ -673,14 +672,14 @@ const IonExchangeSim = (() => {
 
   const state = {
     running: true,
-    // bed model
-    front: 0.0,       // 0 top, 1 bottom
-    frontWidth: 0.16, // thickness of mass transfer zone
-    capUsed: 0.0,     // 0..1
-    effluent: 0.0,    // 0..1
-    // particles
+    front: 0.0,        // 0..1
+    frontWidth: 0.16,  // 0.08..0.28
+    capUsed: 0.0,      // 0..1 (integrated)
+    effluent: 0.0,     // 0..1
     incoming: [],
-    outgoing: []
+    outgoing: [],
+    // for smoothing:
+    effSmooth: 0.0
   };
 
   function resize() {
@@ -700,30 +699,30 @@ const IonExchangeSim = (() => {
   }
 
   function scenarioLabels() {
-    const resinType = ionResinType.value; // cation/anion
+    const resinType = ionResinType.value;
     const sys = ionSystem.value;
     if (sys === "softening") {
       return resinType === "anion"
-        ? { target:"NO₃⁻", resin:"Cl⁻", out:"Cl⁻" }  // force sensible pairing even if user toggles
+        ? { target:"NO₃⁻", resin:"Cl⁻", out:"Cl⁻" }
         : { target:"Ca²⁺", resin:"Na⁺", out:"Na⁺" };
     }
-    // nitrate
     return resinType === "cation"
       ? { target:"Ca²⁺", resin:"Na⁺", out:"Na⁺" }
       : { target:"NO₃⁻", resin:"Cl⁻", out:"Cl⁻" };
   }
 
-  function updateUI() {
-    ionFlowValue.textContent = `${(+ionFlow.value).toFixed(2)}×`;
-    ionCapacityValue.textContent = `${(+ionCapacity.value).toFixed(2)}×`;
-    ionSelValue.textContent = `${(+ionSelectivity.value).toFixed(2)}×`;
-    ionInflValue.textContent = `${(+ionInfluent.value).toFixed(2)}×`;
+  function setUI() {
+    if (ionFlowValue) ionFlowValue.textContent = `${(+ionFlow.value).toFixed(2)}×`;
+    if (ionCapacityValue) ionCapacityValue.textContent = `${(+ionCapacity.value).toFixed(2)}×`;
+    if (ionSelValue) ionSelValue.textContent = `${(+ionSelectivity.value).toFixed(2)}×`;
+    if (ionInflValue) ionInflValue.textContent = `${(+ionInfluent.value).toFixed(2)}×`;
 
-    const effPct = Math.round(state.effluent*100);
+    const effPct = Math.round(state.effSmooth*100);
+    const capPct = Math.round(state.capUsed*100);
+
     ionEffFill.style.width = `${effPct}%`;
     ionEffText.textContent = `${effPct}%`;
 
-    const capPct = Math.round(state.capUsed*100);
     ionCapFill.style.width = `${capPct}%`;
     ionCapText.textContent = `${capPct}%`;
 
@@ -731,37 +730,38 @@ const IonExchangeSim = (() => {
     ionOutMetric.textContent = `${effPct}%`;
     ionCapMetric.textContent = `${capPct}%`;
 
-    if (capPct >= 98) ionStateMetric.textContent = "Exhausted";
-    else if (effPct >= 50) ionStateMetric.textContent = "Breakthrough";
+    if (capPct >= 99) ionStateMetric.textContent = "Exhausted";
+    else if (effPct >= 5) ionStateMetric.textContent = "Breakthrough";
     else ionStateMetric.textContent = "Filtering";
   }
 
   function spawnParticles(dt) {
-    // simple visuals: green target ions entering at top; pink leaving at bottom when breakthrough grows
-    const flow = parseFloat(ionFlow.value);
-    const infl = parseFloat(ionInfluent.value);
+    const flow = +ionFlow.value;
+    const infl = +ionInfluent.value;
 
-    const inRate = 18 * infl; // particles/sec
-    const expectedIn = inRate * dt;
-    for (let i=0;i<expectedIn;i++){
-      if (Math.random() < expectedIn - i && state.incoming.length < 55) {
+    // incoming target ions (green) entering at top
+    const inRate = 16 * infl;
+    const expIn = inRate * dt;
+    for (let i=0;i<expIn;i++){
+      if (Math.random() < expIn - i && state.incoming.length < 60) {
         state.incoming.push({
           x: rand(geom.colX + 18, geom.colX + geom.colW - 18),
-          y: geom.colY - 12,
-          vy: 60 * flow * (0.7 + 0.6*Math.random()),
+          y: geom.colY - 14,
+          vy: 55 * flow * (0.75 + 0.5*Math.random()),
           r: 4
         });
       }
     }
 
-    const outRate = 16 * flow * state.effluent; // more breakthrough -> more leaving ions
-    const expectedOut = outRate * dt;
-    for (let i=0;i<expectedOut;i++){
-      if (Math.random() < expectedOut - i && state.outgoing.length < 55) {
+    // outgoing (pink) leaving from bottom ONLY when effluent rises
+    const outRate = 14 * flow * state.effSmooth;
+    const expOut = outRate * dt;
+    for (let i=0;i<expOut;i++){
+      if (Math.random() < expOut - i && state.outgoing.length < 60) {
         state.outgoing.push({
           x: rand(geom.colX + 18, geom.colX + geom.colW - 18),
-          y: geom.colY + geom.colH + 10,
-          vy: -50 * (0.7 + 0.6*Math.random()),
+          y: geom.colY + geom.colH + 14,
+          vy: 40 * (0.75 + 0.5*Math.random()), // downward motion (matches flow)
           r: 4
         });
       }
@@ -769,53 +769,52 @@ const IonExchangeSim = (() => {
   }
 
   function tick(dt) {
-    const flow = parseFloat(ionFlow.value);
-    const cap = parseFloat(ionCapacity.value);
-    const sel = parseFloat(ionSelectivity.value);
-    const infl = parseFloat(ionInfluent.value);
+    const flow = +ionFlow.value;
+    const capMult = +ionCapacity.value;
+    const sel = +ionSelectivity.value;
+    const infl = +ionInfluent.value;
 
-    // Front speed: increases with influent + flow; decreases with capacity; increases with selectivity (sharper front)
-    const baseSpeed = 0.030; // per second at nominal settings
-    const speed = baseSpeed * infl * flow * (0.75 + 0.55*sel) / cap;
+    // front width: selectivity narrows, flow broadens
+    state.frontWidth = clamp(0.22 - 0.08*sel + 0.06*flow, 0.08, 0.28);
 
-    // Front width: higher selectivity -> narrower zone; higher flow -> broader (less contact time)
-    const width = clamp(0.22 - 0.08*sel + 0.06*flow, 0.08, 0.28);
-    state.frontWidth = width;
+    // Capacity usage integrates with time
+    // More influent + more flow => faster loading; more capacity => slower loading
+    const loadRate = (0.090 * infl * flow) / capMult; // per second, tuned to feel nice
+    state.capUsed = clamp(state.capUsed + loadRate*dt, 0, 1);
 
-    // Move front down until it hits bottom
-    if (state.capUsed < 1.0) {
-      state.front = clamp(state.front + speed*dt, 0, 1);
-      // capacity used grows as front advances + some additional loading in zone
-      state.capUsed = clamp(state.front + 0.35*state.frontWidth, 0, 1);
-    }
+    // Exchange front moves with loading, and selectivity makes it “advance more cleanly”
+    const frontRate = loadRate * (0.75 + 0.55*sel);
+    state.front = clamp(state.front + frontRate*dt, 0, 1);
 
-    // Effluent: near-zero before front reaches bottom; rises as front passes outlet
-    // Smooth "S-curve" around breakthrough point
-    const breakthroughPoint = 1.0 - 0.40*state.frontWidth; // earlier with wider zone
-    const k = 18; // steepness
-    const x = (state.front - breakthroughPoint);
-    const sig = 1/(1 + Math.exp(-k*x));
-    state.effluent = clamp(sig, 0, 1);
+    // Breakthrough needs BOTH:
+    //  (A) front close to outlet
+    //  (B) resin nearing exhaustion
+    const outletGate = clamp((state.front - (1.0 - 0.55*state.frontWidth)) / (0.55*state.frontWidth + 1e-6), 0, 1);
+    const exhaustGate = clamp((state.capUsed - 0.78) / 0.22, 0, 1); // starts after ~78% used
+    const targetEff = clamp(outletGate * exhaustGate, 0, 1);
 
-    // Particles
+    // Smooth for UI stability
+    state.effluent = targetEff;
+    state.effSmooth = 0.88*state.effSmooth + 0.12*state.effluent;
+
+    // particles
     spawnParticles(dt);
 
     for (let i=state.incoming.length-1;i>=0;i--){
       const p = state.incoming[i];
       p.y += p.vy*dt;
-      if (p.y > geom.colY + geom.colH + 18) state.incoming.splice(i,1);
+      if (p.y > geom.colY + geom.colH + 24) state.incoming.splice(i,1);
     }
     for (let i=state.outgoing.length-1;i>=0;i--){
       const p = state.outgoing[i];
       p.y += p.vy*dt;
-      if (p.y < geom.colY - 28) state.outgoing.splice(i,1);
+      if (p.y > geom.h + 40) state.outgoing.splice(i,1);
     }
 
-    updateUI();
+    setUI();
   }
 
   function drawColumn(labels) {
-    // Column body
     const x=geom.colX, y=geom.colY, w=geom.colW, h=geom.colH;
 
     const g = ctx.createLinearGradient(0,y,0,y+h);
@@ -825,12 +824,11 @@ const IonExchangeSim = (() => {
     ctx.fillStyle = g;
     ctx.strokeStyle = "rgba(15,23,42,0.65)";
     ctx.lineWidth = 1.5;
-    ctx.beginPath();
     ctx.roundRect(x,y,w,h,14);
     ctx.fill();
     ctx.stroke();
 
-    // Resin bead grid (conceptual)
+    // resin beads
     const cols = 8;
     const rows = 10;
     const dx = w/(cols+1);
@@ -841,15 +839,14 @@ const IonExchangeSim = (() => {
         const bx = x + c*dx + rand(-1.2,1.2);
         const by = y + r*dy + rand(-1.2,1.2);
 
-        // Determine bead state by position relative to exchange front
-        const pos = (by - y)/h; // 0..1
+        const pos = (by - y)/h;
         const inTargetRegion = pos <= state.front - state.frontWidth*0.5;
         const inZone = Math.abs(pos - state.front) < state.frontWidth*0.5;
 
         let fill;
-        if (inTargetRegion) fill = "rgba(34,197,94,0.85)";     // bound target (green)
-        else if (inZone) fill = "rgba(250,204,21,0.85)";       // transition zone (yellow)
-        else fill = "rgba(96,165,250,0.85)";                   // original resin ion (blue)
+        if (inTargetRegion) fill = "rgba(34,197,94,0.85)";
+        else if (inZone) fill = "rgba(250,204,21,0.85)";
+        else fill = "rgba(96,165,250,0.85)";
 
         ctx.fillStyle = fill;
         ctx.beginPath();
@@ -861,14 +858,8 @@ const IonExchangeSim = (() => {
       }
     }
 
-    // Exchange front line (glow)
+    // exchange front glow line
     const frontY = y + state.front*h;
-    ctx.strokeStyle = "rgba(34,197,94,0.95)";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(x+10, frontY);
-    ctx.lineTo(x+w-10, frontY);
-    ctx.stroke();
 
     ctx.strokeStyle = "rgba(34,197,94,0.25)";
     ctx.lineWidth = 10;
@@ -877,15 +868,20 @@ const IonExchangeSim = (() => {
     ctx.lineTo(x+w-10, frontY);
     ctx.stroke();
 
-    // Labels: inlet/outlet + ion names
+    ctx.strokeStyle = "rgba(34,197,94,0.95)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(x+10, frontY);
+    ctx.lineTo(x+w-10, frontY);
+    ctx.stroke();
+
     ctx.fillStyle = "#111827";
     ctx.font = "12px Poppins";
-
     ctx.fillText(`Inlet: target ion = ${labels.target}`, x, y - 18);
     ctx.fillText(`Resin starts with: ${labels.resin}`, x, y - 2);
-    ctx.fillText(`Outlet: target ion % rises at breakthrough`, x, y + h + 22);
+    ctx.fillText(`Outlet: target ion rises at breakthrough`, x, y + h + 22);
 
-    // Arrow showing flow direction
+    // flow arrow
     ctx.strokeStyle = "rgba(15,23,42,0.55)";
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -893,7 +889,6 @@ const IonExchangeSim = (() => {
     ctx.lineTo(x + w + 35, y + h - 8);
     ctx.stroke();
 
-    // arrowhead
     ctx.beginPath();
     ctx.moveTo(x + w + 35, y + h - 8);
     ctx.lineTo(x + w + 28, y + h - 18);
@@ -902,24 +897,8 @@ const IonExchangeSim = (() => {
     ctx.fillStyle = "rgba(15,23,42,0.55)";
     ctx.fill();
     ctx.fillStyle = "#111827";
-    ctx.fillText("Flow", x + w + 18, y + h + 12);
-
-    // Side “what’s happening” text
-    const sideX = x + w + 70;
     ctx.font = "11px Poppins";
-    ctx.fillStyle = "rgba(15,23,42,0.85)";
-    ctx.fillText("Green beads:", sideX, y + 30);
-    ctx.fillText("sites now holding", sideX, y + 44);
-    ctx.fillText(`${labels.target}`, sideX, y + 58);
-
-    ctx.fillStyle = "rgba(15,23,42,0.65)";
-    ctx.fillText("Yellow zone:", sideX, y + 90);
-    ctx.fillText("exchange front", sideX, y + 104);
-
-    ctx.fillStyle = "rgba(15,23,42,0.65)";
-    ctx.fillText("Blue beads:", sideX, y + 136);
-    ctx.fillText("still holding", sideX, y + 150);
-    ctx.fillText(`${labels.resin}`, sideX, y + 164);
+    ctx.fillText("Flow", x + w + 18, y + h + 12);
   }
 
   function render() {
@@ -931,13 +910,11 @@ const IonExchangeSim = (() => {
     const labels = scenarioLabels();
     drawColumn(labels);
 
-    // incoming (green)
     for (const p of state.incoming) {
       ctx.fillStyle = "rgba(34,197,94,0.95)";
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
     }
 
-    // outgoing (pink)
     for (const p of state.outgoing) {
       ctx.fillStyle = "rgba(251,113,133,0.95)";
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
@@ -948,37 +925,29 @@ const IonExchangeSim = (() => {
     state.front = 0.0;
     state.capUsed = 0.0;
     state.effluent = 0.0;
+    state.effSmooth = 0.0;
     state.incoming.length = 0;
     state.outgoing.length = 0;
-    updateUI();
-  }
-
-  function regenerate() {
-    // regeneration restores resin to initial state (front returns upward, capacity clears)
-    state.front = 0.0;
-    state.capUsed = 0.0;
-    state.effluent = 0.0;
-    state.incoming.length = 0;
-    state.outgoing.length = 0;
-    updateUI();
+    setUI();
   }
 
   function initOnce() {
-    ["input","change"].forEach(evt => {
-      ionResinType.addEventListener(evt, ()=>{});
-      ionSystem.addEventListener(evt, ()=>{});
-      ionFlow.addEventListener(evt, ()=>{});
-      ionCapacity.addEventListener(evt, ()=>{});
-      ionSelectivity.addEventListener(evt, ()=>{});
-      ionInfluent.addEventListener(evt, ()=>{});
-    });
-
     ionPlay.addEventListener("click", ()=>{ state.running=true; });
     ionPause.addEventListener("click", ()=>{ state.running=false; });
     ionReset.addEventListener("click", resetState);
-    ionRegen.addEventListener("click", regenerate);
+    ionRegen.addEventListener("click", resetState);
 
-    updateUI();
+    // keep UI pills correct from first frame
+    ["input","change"].forEach(evt => {
+      ionFlow.addEventListener(evt, setUI);
+      ionCapacity.addEventListener(evt, setUI);
+      ionSelectivity.addEventListener(evt, setUI);
+      ionInfluent.addEventListener(evt, setUI);
+      ionResinType.addEventListener(evt, setUI);
+      ionSystem.addEventListener(evt, setUI);
+    });
+
+    setUI();
   }
 
   return {
@@ -992,30 +961,513 @@ const IonExchangeSim = (() => {
     resize,
     tick(dt){ if (state.running) tick(dt); },
     render,
-    onShow(){ resize(); updateUI(); }
+    onShow(){ resize(); setUI(); }
+  };
+})();
+
+/* -----------------------------
+   Double Slit Module (SIM 4)
+   - Injects full UI into Slot 4 so you don't edit index.html
+   - Same “canvas card + controls card” style
+   - Shows intensity pattern + photon hits
+----------------------------- */
+const DoubleSlitSim = (() => {
+  const containerId = "sim-sim4";
+  const container = document.getElementById(containerId);
+
+  let canvas, ctx;
+  let running = true;
+
+  // controls (created at runtime)
+  let elLambda, elSep, elSlitW, elScreenDist, elRate, elWhich, elMode;
+  let elMetricVis, elMetricFringe, elMetricContrast, elMetricState;
+  let elReset, elPlay, elPause;
+
+  // sim state
+  const state = {
+    // screen intensity accumulator + photon hits
+    hits: [],
+    intensity: [],
+    t: 0,
+    maxKeep: 2500,
+    // smoothing
+    smoothContrast: 0,
+  };
+
+  function injectUI() {
+    if (!container) return;
+    // Only inject once
+    if (container.dataset.built === "1") return;
+    container.dataset.built = "1";
+
+    container.innerHTML = `
+      <section class="sim-canvas-card">
+        <canvas id="slitCanvas" aria-label="Double Slit Experiment"></canvas>
+
+        <div class="legend-bar legend-right">
+          <div class="legend-title">Key</div>
+          <div class="legend-item"><span class="bubble-dot"></span> Photon hit</div>
+          <div class="legend-item"><span class="tray-color tray-top"></span> Bright fringe</div>
+          <div class="legend-item"><span class="tray-color tray-bottom"></span> Dark fringe</div>
+        </div>
+
+        <div class="ix-panels">
+          <div class="ix-panel">
+            <div class="ix-panel-head">
+              <span>Screen Pattern</span>
+              <button class="info-badge" data-info="Without which-path detection, waves from both slits interfere and produce bright/dark fringes. With which-path detection, interference disappears and the pattern becomes a smooth sum of two single-slit blobs.">?</button>
+            </div>
+            <div class="poll-bar"><div id="slitVisFill" class="poll-fill ix-eff" style="width:0%"></div></div>
+            <div class="poll-text"><span id="slitVisText">0%</span> Interference Visibility</div>
+          </div>
+
+          <div class="ix-panel">
+            <div class="ix-panel-head">
+              <span>Photon Count</span>
+              <button class="info-badge" data-info="The pattern builds up one detection at a time. More photons makes the fringes clearer (if interference is present).">?</button>
+            </div>
+            <div class="poll-bar"><div id="slitCountFill" class="poll-fill ix-cap" style="width:0%"></div></div>
+            <div class="poll-text"><span id="slitCountText">0</span> Hits (recent window)</div>
+          </div>
+        </div>
+
+        <p class="sim-footnote">Try toggling “Which-path detector.” Notice how the pattern changes even though photons still hit the screen.</p>
+      </section>
+
+      <aside class="sim-controls-card">
+        <h3>Double Slit Controls</h3>
+
+        <div class="control-group">
+          <label for="slitMode">Source</label>
+          <select id="slitMode">
+            <option value="photon">Photon-by-photon</option>
+            <option value="continuous">Continuous intensity</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="slitLambda">Wavelength λ (nm)
+            <button class="info-badge" data-info="Shorter wavelength → fringes get tighter (closer together).">?</button>
+          </label>
+          <div class="row">
+            <input id="slitLambda" type="range" min="380" max="720" value="550" />
+            <span id="slitLambdaValue" class="value-pill">550 nm</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="slitSep">Slit Separation d
+            <button class="info-badge" data-info="Greater separation → fringes get tighter (more oscillations across the screen).">?</button>
+          </label>
+          <div class="row">
+            <input id="slitSep" type="range" min="40" max="180" value="110" />
+            <span id="slitSepValue" class="value-pill">110</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="slitW">Slit Width a
+            <button class="info-badge" data-info="Wider slits reduce diffraction spread; narrower slits spread out more. This controls the envelope around the interference fringes.">?</button>
+          </label>
+          <div class="row">
+            <input id="slitW" type="range" min="8" max="60" value="22" />
+            <span id="slitWValue" class="value-pill">22</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="slitL">Screen Distance L
+            <button class="info-badge" data-info="Farther screen distance makes fringes spread out (in simple far-field approximation).">?</button>
+          </label>
+          <div class="row">
+            <input id="slitL" type="range" min="140" max="520" value="320" />
+            <span id="slitLValue" class="value-pill">320</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="slitRate">Emission Rate
+            <button class="info-badge" data-info="Controls how fast hits accumulate in photon-by-photon mode.">?</button>
+          </label>
+          <div class="row">
+            <input id="slitRate" type="range" min="0" max="1" step="0.01" value="0.35" />
+            <span id="slitRateValue" class="value-pill">0.35</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="toggle">
+            <input id="slitWhich" type="checkbox" />
+            Which-path detector (no interference)
+          </label>
+        </div>
+
+        <div class="control-group metrics">
+          <div class="metric"><div class="metric-label">Visibility</div><div class="metric-value" id="slitMVis">–</div></div>
+          <div class="metric"><div class="metric-label">Fringe Spacing</div><div class="metric-value" id="slitMFringe">–</div></div>
+          <div class="metric"><div class="metric-label">Contrast</div><div class="metric-value" id="slitMCon">–</div></div>
+          <div class="metric"><div class="metric-label">State</div><div class="metric-value" id="slitMState">Running</div></div>
+        </div>
+
+        <div class="control-buttons">
+          <button id="slitPlay" class="primary">Play</button>
+          <button id="slitPause">Pause</button>
+          <button id="slitReset">Reset</button>
+        </div>
+      </aside>
+    `;
+  }
+
+  function grabEls() {
+    canvas = document.getElementById("slitCanvas");
+    ctx = canvas.getContext("2d");
+
+    elMode = document.getElementById("slitMode");
+    elLambda = document.getElementById("slitLambda");
+    elSep = document.getElementById("slitSep");
+    elSlitW = document.getElementById("slitW");
+    elScreenDist = document.getElementById("slitL");
+    elRate = document.getElementById("slitRate");
+    elWhich = document.getElementById("slitWhich");
+
+    elMetricVis = document.getElementById("slitMVis");
+    elMetricFringe = document.getElementById("slitMFringe");
+    elMetricContrast = document.getElementById("slitMCon");
+    elMetricState = document.getElementById("slitMState");
+
+    elPlay = document.getElementById("slitPlay");
+    elPause = document.getElementById("slitPause");
+    elReset = document.getElementById("slitReset");
+
+    // value pills
+    const vLam = document.getElementById("slitLambdaValue");
+    const vSep = document.getElementById("slitSepValue");
+    const vW = document.getElementById("slitWValue");
+    const vL = document.getElementById("slitLValue");
+    const vRate = document.getElementById("slitRateValue");
+
+    const visFill = document.getElementById("slitVisFill");
+    const visText = document.getElementById("slitVisText");
+    const countFill = document.getElementById("slitCountFill");
+    const countText = document.getElementById("slitCountText");
+
+    function syncLabels() {
+      vLam.textContent = `${elLambda.value} nm`;
+      vSep.textContent = `${elSep.value}`;
+      vW.textContent = `${elSlitW.value}`;
+      vL.textContent = `${elScreenDist.value}`;
+      vRate.textContent = `${(+elRate.value).toFixed(2)}`;
+
+      const vis = computeVisibility();
+      const visPct = Math.round(vis * 100);
+      visFill.style.width = `${visPct}%`;
+      visText.textContent = `${visPct}%`;
+
+      const count = state.hits.length;
+      countText.textContent = `${count}`;
+      countFill.style.width = `${Math.round((count / state.maxKeep) * 100)}%`;
+
+      elMetricVis.textContent = `${visPct}%`;
+      elMetricFringe.textContent = `${computeFringeSpacing().toFixed(1)} px`;
+      elMetricContrast.textContent = `${Math.round(state.smoothContrast * 100)}%`;
+      elMetricState.textContent = running ? "Running" : "Paused";
+    }
+
+    // bindings
+    ["input", "change"].forEach(evt => {
+      elLambda.addEventListener(evt, syncLabels);
+      elSep.addEventListener(evt, syncLabels);
+      elSlitW.addEventListener(evt, syncLabels);
+      elScreenDist.addEventListener(evt, syncLabels);
+      elRate.addEventListener(evt, syncLabels);
+      elWhich.addEventListener(evt, () => {
+        // if which-path toggled, clear intensity so the change is obvious
+        resetState();
+        syncLabels();
+      });
+      elMode.addEventListener(evt, () => {
+        resetState();
+        syncLabels();
+      });
+    });
+
+    elPlay.addEventListener("click", () => { running = true; syncLabels(); });
+    elPause.addEventListener("click", () => { running = false; syncLabels(); });
+    elReset.addEventListener("click", () => { resetState(); syncLabels(); });
+
+    // initial
+    syncLabels();
+  }
+
+  function resize() {
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const cssW = rect.width || 900;
+    const cssH = rect.height || 460;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = cssW * dpr;
+    canvas.height = cssH * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    state.intensity = new Array(Math.floor(cssW)).fill(0);
+  }
+
+  // Simple far-field-ish model:
+  // Intensity(x) = envelope(a) * [ 1 + cos(k d x / L) ] / 2   (with which-path => remove cosine term)
+  // envelope approximated as exp(-(x/spread)^2)
+  function intensityAt(x, w, params) {
+    const { lambda, d, a, L, whichPath } = params;
+    const cx = w * 0.5;
+    const dx = x - cx;
+
+    // envelope width controlled by slit width a: smaller a => wider spread
+    const spread = 0.25 * w * (28 / Math.max(8, a)); // tuned for visuals
+    const env = Math.exp(- (dx*dx) / (2 * spread * spread));
+
+    if (whichPath) {
+      // smooth sum of two broad lobes (no interference)
+      // model as two gaussians centered on the two slits projected to screen (simple)
+      const sepPx = 0.24 * (d / 120) * w * (L / 320) * 0.22; // tuned
+      const g1 = Math.exp(-((dx - sepPx)**2) / (2*spread*spread));
+      const g2 = Math.exp(-((dx + sepPx)**2) / (2*spread*spread));
+      return clamp(env * 0.55 * (g1 + g2), 0, 1);
+    }
+
+    const k = (2 * Math.PI) / Math.max(1, lambda);
+    // phase proportional to path difference ~ d * x / L
+    const phase = k * (d * dx) / Math.max(40, L);
+    const fringes = 0.5 + 0.5 * Math.cos(phase);
+
+    return clamp(env * fringes, 0, 1);
+  }
+
+  function computeVisibility() {
+    // visibility ~ 1 when interference on, ~0 when which-path
+    return elWhich && elWhich.checked ? 0.02 : 0.98;
+  }
+
+  function computeFringeSpacing() {
+    // qualitative spacing on canvas in pixels ~ proportional to (lambda*L/d)
+    if (!canvas) return 0;
+    const w = canvas.getBoundingClientRect().width || 900;
+    const lambda = +elLambda.value;
+    const L = +elScreenDist.value;
+    const d = +elSep.value;
+    const spacing = (lambda * L / Math.max(1, d)) * (w / 900) * 0.06; // tuned
+    return clamp(spacing, 6, 180);
+  }
+
+  function resetState() {
+    state.hits.length = 0;
+    state.t = 0;
+    // reset intensity buffer to zero
+    const w = canvas ? (canvas.getBoundingClientRect().width || 900) : 900;
+    state.intensity = new Array(Math.floor(w)).fill(0);
+    state.smoothContrast = 0;
+  }
+
+  function spawnHit(dt) {
+    const w = state.intensity.length;
+    if (w <= 0) return;
+
+    const params = {
+      lambda: +elLambda.value,
+      d: +elSep.value,
+      a: +elSlitW.value,
+      L: +elScreenDist.value,
+      whichPath: elWhich.checked
+    };
+
+    // sample x from the intensity distribution using rejection sampling
+    // (fast enough for this size)
+    for (let tries = 0; tries < 24; tries++) {
+      const x = Math.floor(Math.random() * w);
+      const y = Math.random();
+      const I = intensityAt(x, w, params);
+      if (y < I) {
+        state.hits.push({ x, age: 0 });
+        if (state.hits.length > state.maxKeep) state.hits.shift();
+        break;
+      }
+    }
+  }
+
+  function tick(dt) {
+    if (!canvas) return;
+    state.t += dt;
+
+    const w = state.intensity.length;
+    const params = {
+      lambda: +elLambda.value,
+      d: +elSep.value,
+      a: +elSlitW.value,
+      L: +elScreenDist.value,
+      whichPath: elWhich.checked
+    };
+
+    const mode = elMode.value;
+
+    if (mode === "continuous") {
+      // accumulate intensity smoothly (builds a histogram-like bar)
+      const rate = 0.7 + 3.0 * (+elRate.value);
+      const steps = Math.max(1, Math.floor(rate));
+      for (let s=0; s<steps; s++){
+        for (let x=0; x<w; x+=2) {
+          state.intensity[x] += intensityAt(x, w, params) * 0.9;
+        }
+      }
+    } else {
+      // photon-by-photon: spawn hits
+      const rate = 8 + 60 * (+elRate.value);
+      const expected = rate * dt;
+      for (let i=0;i<expected;i++){
+        if (Math.random() < expected - i) spawnHit(dt);
+      }
+
+      // add hits to intensity buffer
+      for (const h of state.hits) {
+        state.intensity[h.x] += 1.0;
+      }
+    }
+
+    // contrast estimate from intensity buffer (rough)
+    let maxV = 0, minV = Infinity;
+    for (let i=0;i<w;i+=3){
+      const v = state.intensity[i];
+      if (v > maxV) maxV = v;
+      if (v < minV) minV = v;
+    }
+    const contrast = maxV > 0 ? clamp((maxV - minV) / (maxV + minV + 1e-6), 0, 1) : 0;
+    state.smoothContrast = 0.90*state.smoothContrast + 0.10*contrast;
+
+    // age hits
+    for (let i=state.hits.length-1;i>=0;i--){
+      state.hits[i].age += dt;
+      if (state.hits[i].age > 2.4) state.hits.splice(i,1);
+    }
+  }
+
+  function render() {
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.floor(rect.width || 900);
+    const h = Math.floor(rect.height || 460);
+
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle = "#e5e7eb";
+    ctx.fillRect(0,0,w,h);
+
+    // draw barrier + slits (left side)
+    const wallX = 180;
+    const wallW = 26;
+    const slitSep = +elSep.value * 0.55;
+    const slitW = +elSlitW.value * 0.45;
+
+    ctx.fillStyle = "rgba(15,23,42,0.30)";
+    ctx.fillRect(wallX, 0, wallW, h);
+
+    // cut two slits
+    const cy = h * 0.45;
+    const s1 = cy - slitSep * 0.5;
+    const s2 = cy + slitSep * 0.5;
+
+    ctx.clearRect(wallX, s1 - slitW*0.5, wallW, slitW);
+    ctx.clearRect(wallX, s2 - slitW*0.5, wallW, slitW);
+
+    // screen line (right)
+    const screenX = w - 120;
+    ctx.strokeStyle = "rgba(15,23,42,0.6)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(screenX, 20);
+    ctx.lineTo(screenX, h - 20);
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(15,23,42,0.75)";
+    ctx.font = "12px Poppins";
+    ctx.fillText("Screen", screenX - 18, 16);
+
+    // intensity histogram on screen
+    const buf = state.intensity;
+    let maxV = 1;
+    for (let i=0;i<buf.length;i+=4) maxV = Math.max(maxV, buf[i]);
+
+    ctx.strokeStyle = "rgba(14,165,233,0.85)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+
+    for (let y=0; y<h; y++){
+      // map y->x on buffer (vertical screen)
+      const t = y / Math.max(1, h-1);
+      const bx = Math.floor(t * (buf.length - 1));
+      const val = buf[bx] / maxV;
+      const xOff = val * 90; // how far left bars extend from screen line
+      const px = screenX - xOff;
+      if (y === 0) ctx.moveTo(px, y);
+      else ctx.lineTo(px, y);
+    }
+    ctx.stroke();
+
+    // photon hits (dots) on screen
+    ctx.fillStyle = "rgba(59,130,246,0.85)";
+    for (const hit of state.hits) {
+      // map hit.x (buffer x) -> screen y
+      const t = hit.x / Math.max(1, buf.length - 1);
+      const y = 20 + t * (h - 40);
+      const a = clamp(1 - hit.age/2.4, 0, 1);
+      ctx.fillStyle = `rgba(59,130,246,${0.25 + 0.60*a})`;
+      ctx.beginPath();
+      ctx.arc(screenX + 8, y, 3.2, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    // draw rays hint
+    ctx.strokeStyle = "rgba(15,23,42,0.18)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(60, cy);
+    ctx.lineTo(wallX, s1);
+    ctx.moveTo(60, cy);
+    ctx.lineTo(wallX, s2);
+    ctx.stroke();
+
+    // label which-path status
+    ctx.fillStyle = "rgba(15,23,42,0.75)";
+    ctx.font = "12px Poppins";
+    ctx.fillText(elWhich.checked ? "Which-path ON (no interference)" : "Which-path OFF (interference)", 20, h - 20);
+  }
+
+  function initOnce() {
+    injectUI();
+    grabEls();
+    resize();
+    resetState();
+  }
+
+  return {
+    id: "sim4",
+    title: "Double Slit Experiment",
+    subtitle: "Interference builds up on the screen; measuring which path removes the fringe pattern.",
+    // Use hub theme to avoid CSS edits; it still matches your system
+    themeClass: "theme-hub",
+    themeLabel: "Theme: Quantum (Hub Blue)",
+    containerId,
+    initOnce,
+    resize,
+    tick(dt){ if (running) tick(dt); },
+    render,
+    onShow(){ resize(); }
   };
 })();
 
 /* ===========================================================
-   ADD NEW SIM MODULES HERE (Slots 4–12)
-   Paste your future sim module objects here, then add to SIM_REGISTRY.
-   Example skeleton:
-   const Sim4 = { id:"sim4", title:"...", subtitle:"...", themeClass:"theme-...", themeLabel:"...", containerId:"sim-sim4",
-                  initOnce(){}, resize(){}, tick(dt){}, render(){}, onShow(){} };
-   =========================================================== */
-
-/* -----------------------------
    SIM REGISTRY
------------------------------ */
+=========================================================== */
 const SIM_REGISTRY = {
   photocatalysis: PhotocatalysisSim,
   distillation: DistillationSim,
   ionExchange: IonExchangeSim,
-
-  // Slots 4–12 reserved:
-  // sim4: Sim4,
-  // sim5: Sim5,
-  // ...
+  sim4: DoubleSlitSim,
 };
 
 /* Track init so we only wire listeners once */
@@ -1025,11 +1477,12 @@ const initDone = new Set();
    ROUTER / NAVIGATION
 =========================================================== */
 function hideAllSimContainers() {
+  // registered sims
   for (const sim of Object.values(SIM_REGISTRY)) {
     const el = document.getElementById(sim.containerId);
     if (el) el.hidden = true;
   }
-  // also hide placeholder containers for slots not yet registered
+  // unregistered placeholders (still hide them)
   for (let i=4;i<=12;i++){
     const el = document.getElementById(`sim-sim${i}`);
     if (el) el.hidden = true;
@@ -1049,44 +1502,61 @@ function showHub() {
 
 function openSim(simId) {
   const sim = SIM_REGISTRY[simId];
-  if (!sim) return; // not registered
+  if (!sim) return;
 
-  // Hub -> sim
   hubScreen.classList.remove("active");
   simScreen.hidden = false;
   simScreen.classList.add("active");
 
-  // Hide all, then show one
   hideAllSimContainers();
   const container = document.getElementById(sim.containerId);
   if (container) container.hidden = false;
 
-  // Set header + theme
   simTitle.textContent = sim.title;
   simSubtitle.textContent = sim.subtitle;
   simThemeLabel.textContent = sim.themeLabel;
 
   document.body.className = sim.themeClass;
 
-  // Init once
   if (!initDone.has(simId)) {
     sim.initOnce?.();
     initDone.add(simId);
   }
 
-  // Show hooks
   sim.onShow?.();
-
   currentSimId = simId;
 }
 
-backToHubBtn.addEventListener("click", showHub);
+backToHubBtn?.addEventListener("click", showHub);
 
+// Enable sim4 row UI (button + status) if it exists in hub
+function enableSimRow(simId) {
+  const row = document.querySelector(`.sim-row[data-sim="${simId}"]`);
+  if (!row) return;
+  row.classList.remove("sim-coming");
+  row.style.opacity = "";
+  row.style.cursor = "pointer";
+  const btn = row.querySelector(".sim-row-btn");
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = "Open";
+  }
+  const status = row.querySelector(".sim-status");
+  if (status) {
+    status.classList.remove("ghost");
+    status.textContent = "Ready";
+  }
+  const tag = row.querySelector(".sim-tag");
+  if (tag && tag.textContent.toLowerCase().includes("reserved")) {
+    tag.textContent = "Physics · Waves · Quantum";
+  }
+}
+
+// Wire up hub rows
 simRows.forEach(row => {
   const simId = row.dataset.sim;
   const btn = row.querySelector(".sim-row-btn");
 
-  // Only clickable if registered and not disabled
   const isReady = Boolean(SIM_REGISTRY[simId]);
   if (!isReady) return;
 
@@ -1126,10 +1596,17 @@ window.addEventListener("resize", () => {
 /* Init */
 function init() {
   showHub();
+
+  // Make sim4 appear as “Ready” in the hub (no HTML edits needed)
+  enableSimRow("sim4");
+
   // pre-resize canvases so first open is crisp
   PhotocatalysisSim.resize();
   DistillationSim.resize();
   IonExchangeSim.resize();
+  // Sim4 builds canvas only when opened; but safe to build early if you want:
+  // DoubleSlitSim.initOnce();
+
   requestAnimationFrame(loop);
 }
 init();

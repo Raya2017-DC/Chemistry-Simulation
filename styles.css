@@ -22,6 +22,10 @@
   --ionx-main:#6d28d9;
   --ionx-soft:rgba(109,40,217,0.12);
 
+  /* Double Slit: amber/black */
+  --slit-main:#f59e0b;
+  --slit-soft:rgba(245,158,11,0.14);
+
   /* shared particle colors */
   --electron:#1e88e5;
   --hole:#ef4444;
@@ -34,6 +38,7 @@ body.theme-hub{ --accent-main:var(--hub-accent); --accent-soft:var(--hub-soft); 
 body.theme-photo{ --accent-main:var(--photo-main); --accent-soft:var(--photo-soft); }
 body.theme-distil{ --accent-main:var(--distil-main); --accent-soft:var(--distil-soft); }
 body.theme-ionx{ --accent-main:var(--ionx-main); --accent-soft:var(--ionx-soft); }
+body.theme-slit{ --accent-main:var(--slit-main); --accent-soft:var(--slit-soft); }
 
 *{ box-sizing:border-box; }
 html,body{ margin:0; padding:0; height:100%; }
@@ -102,6 +107,7 @@ main{ max-width:1120px; margin:0 auto 26px; padding:0 20px 20px; }
 .sim-row.sim-photo{ border-left:6px solid var(--photo-main); }
 .sim-row.sim-distil{ border-left:6px solid var(--distil-main); }
 .sim-row.sim-ionx{ border-left:6px solid var(--ionx-main); }
+.sim-row.sim-slit{ border-left:6px solid var(--slit-main); }
 .sim-row.sim-coming{ border-left:6px solid #94a3b8; opacity:0.78; cursor:default; }
 
 .sim-row-main{ flex:1; }
@@ -121,6 +127,7 @@ main{ max-width:1120px; margin:0 auto 26px; padding:0 20px 20px; }
 .sim-preview-photo{ background:linear-gradient(130deg,#1e88e5,#80d8ff); }
 .sim-preview-distil{ background:linear-gradient(130deg,#d32f2f,#ffb4a2); }
 .sim-preview-ionx{ background:linear-gradient(130deg,#6d28d9,#c084fc); }
+.sim-preview-slit{ background:linear-gradient(130deg,#111827,#f59e0b); }
 .sim-preview-placeholder{
   background:repeating-linear-gradient(45deg,#e2e8f0,#e2e8f0 6px,#ffffff 6px,#ffffff 12px);
 }
@@ -155,7 +162,7 @@ main{ max-width:1120px; margin:0 auto 26px; padding:0 20px 20px; }
 .sim-controls-card{ padding:12px 12px 10px; display:flex; flex-direction:column; gap:10px; }
 
 /* canvases */
-#photoCanvas,#distilCanvas,#ionCanvas{
+#photoCanvas,#distilCanvas,#ionCanvas,#slitCanvas{
   width:100%; height:460px; border-radius:14px;
   background:radial-gradient(circle at top,#ffffff,#e5e7eb 40%,#e2e8f0);
   display:block;
@@ -199,6 +206,13 @@ main{ max-width:1120px; margin:0 auto 26px; padding:0 20px 20px; }
   border:1px solid rgba(15,23,42,0.12);
 }
 
+/* double slit legend swatches */
+.slit-swatch{ width:18px; height:10px; border-radius:5px; border:1px solid rgba(15,23,42,0.12); }
+.slit-wall{ background:rgba(17,24,39,0.85); }
+.slit-gap{ background:rgba(245,158,11,0.85); }
+.slit-hit{ background:rgba(14,165,233,0.90); }
+.slit-fringe{ background:linear-gradient(90deg, rgba(245,158,11,0.15), rgba(245,158,11,0.95)); }
+
 /* panels/bars */
 .pollutant-panel,.distil-purity-panel,.ix-panels{ padding:4px 4px 2px; }
 .poll-header,.ix-panel-head{
@@ -231,6 +245,10 @@ main{ max-width:1120px; margin:0 auto 26px; padding:0 20px 20px; }
 .ix-panel{ flex:1; min-width:200px; }
 .poll-fill.ix-eff{ background:linear-gradient(90deg, rgba(34,197,94,0.2), rgba(34,197,94,0.95)); width:0%; }
 .poll-fill.ix-cap{ background:linear-gradient(90deg, rgba(109,40,217,0.2), rgba(109,40,217,0.95)); width:0%; }
+
+/* double slit panels */
+.poll-fill.slit-vis{ background:linear-gradient(90deg, rgba(245,158,11,0.2), rgba(245,158,11,0.95)); width:0%; }
+.poll-fill.slit-hits{ background:linear-gradient(90deg, rgba(14,165,233,0.2), rgba(14,165,233,0.95)); width:0%; }
 
 /* controls */
 .sim-controls-card h3{ margin:0 0 4px; font-size:18px; }
@@ -295,19 +313,10 @@ input[type="range"]{ accent-color:var(--accent-main); }
 }
 #infoText{ white-space:pre-line; padding-right:18px; }
 
-/* placeholders */
-.placeholder-card{
-  border-radius:14px;
-  border:1px dashed rgba(15,23,42,0.20);
-  background:rgba(15,23,42,0.02);
-  padding:16px;
-}
-.placeholder-card.small{ padding:12px; }
-
 /* responsive */
 @media (max-width: 900px){
   .sim-layout{ grid-template-columns:1fr; }
-  #photoCanvas,#distilCanvas,#ionCanvas{ height:380px; }
+  #photoCanvas,#distilCanvas,#ionCanvas,#slitCanvas{ height:380px; }
   .sim-row{ flex-direction:column; }
   .sim-row-side{ width:100%; align-items:flex-start; }
   .legend-right{ position:static; width:auto; margin-top:8px; }

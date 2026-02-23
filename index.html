@@ -92,25 +92,25 @@
             </div>
           </article>
 
-          <!-- =========================
-               PLACEHOLDERS (10 slots)
-               Keep these. Replace one at a time later.
-               ========================= -->
-          <article class="sim-row sim-coming" data-sim="sim4">
+          <!-- ✅ SIM 4 ACTIVE NOW -->
+          <article class="sim-row sim-slit" data-sim="sim4">
             <div class="sim-row-main">
-              <h3>Simulation 4 (Coming Soon)</h3>
-              <p>Reserved slot. Later, replace this description + activate in the registry.</p>
+              <h3>Double Slit Experiment</h3>
+              <p>See interference fringes build up — and watch them disappear with which-path measurement.</p>
               <div class="sim-meta">
-                <span class="sim-tag">Reserved</span>
-                <span class="sim-status ghost">Coming Soon</span>
+                <span class="sim-tag">Physics · Waves · Quantum</span>
+                <span class="sim-status">Ready</span>
               </div>
             </div>
             <div class="sim-row-side">
-              <div class="sim-preview sim-preview-placeholder"></div>
-              <button class="sim-row-btn" disabled>Coming Soon</button>
+              <div class="sim-preview sim-preview-slit"></div>
+              <button class="sim-row-btn">Open</button>
             </div>
           </article>
 
+          <!-- =========================
+               PLACEHOLDERS (Slots 5–12)
+               ========================= -->
           <article class="sim-row sim-coming" data-sim="sim5">
             <div class="sim-row-main">
               <h3>Simulation 5 (Coming Soon)</h3>
@@ -248,10 +248,9 @@
         </div>
 
         <!-- =========================================================
-             SIM SLOT 1: Photocatalysis (HTML lives here)
+             SIM SLOT 1: Photocatalysis
              ========================================================= -->
         <div id="sim-photocatalysis" class="sim-layout" hidden>
-          <!-- (Same structure style as before; kept compatible with old IDs) -->
           <section class="sim-canvas-card">
             <canvas id="photoCanvas" aria-label="Photocatalysis Visualization"></canvas>
 
@@ -365,7 +364,7 @@
         </div>
 
         <!-- =========================================================
-             SIM SLOT 2: Distillation (HTML lives here)
+             SIM SLOT 2: Distillation
              ========================================================= -->
         <div id="sim-distillation" class="sim-layout" hidden>
           <section class="sim-canvas-card">
@@ -475,7 +474,7 @@
         </div>
 
         <!-- =========================================================
-             SIM SLOT 3: Ion Exchange (NEW)
+             SIM SLOT 3: Ion Exchange (FIXED)
              ========================================================= -->
         <div id="sim-ionExchange" class="sim-layout" hidden>
           <section class="sim-canvas-card">
@@ -594,67 +593,116 @@
         </div>
 
         <!-- =========================================================
-             SIM SLOTS 4–12 (EMPTY PLACEHOLDERS)
-             Paste future sim HTML into these and register in script.js
+             SIM SLOT 4: Double Slit Experiment (NEW)
              ========================================================= -->
-
-        <!-- === SLOT 4 HTML INSERT START === -->
         <div id="sim-sim4" class="sim-layout" hidden>
           <section class="sim-canvas-card">
-            <div class="placeholder-card">
-              <h3>Simulation 4</h3>
-              <p>This slot is reserved. Paste the simulation HTML here when ready.</p>
+            <canvas id="slitCanvas" aria-label="Double Slit Experiment"></canvas>
+
+            <div class="legend-bar legend-right">
+              <div class="legend-title">Key</div>
+              <div class="legend-item"><span class="slit-swatch slit-wall"></span> Barrier</div>
+              <div class="legend-item"><span class="slit-swatch slit-gap"></span> Slits</div>
+              <div class="legend-item"><span class="slit-swatch slit-hit"></span> Photon Hits</div>
+              <div class="legend-item"><span class="slit-swatch slit-fringe"></span> Interference Intensity</div>
             </div>
+
+            <div class="ix-panels">
+              <div class="ix-panel">
+                <div class="ix-panel-head">
+                  <span>Fringe Visibility</span>
+                  <button class="info-badge" data-info="Visibility is high when interference is strong. Turning on which-path detection destroys interference and visibility drops.">?</button>
+                </div>
+                <div class="poll-bar"><div id="slitVisFill" class="poll-fill slit-vis"></div></div>
+                <div class="poll-text"><span id="slitVisText">–</span> (0% = none, 100% = strong)</div>
+              </div>
+
+              <div class="ix-panel">
+                <div class="ix-panel-head">
+                  <span>Screen Build-Up</span>
+                  <button class="info-badge" data-info="This counts the number of detected 'hits' on the screen. As hits accumulate, the pattern becomes visible.">?</button>
+                </div>
+                <div class="poll-bar"><div id="slitHitsFill" class="poll-fill slit-hits"></div></div>
+                <div class="poll-text"><span id="slitHitsText">0</span> Hits</div>
+              </div>
+            </div>
+
+            <p class="sim-footnote">
+              Tip: Increase slit separation to tighten fringe spacing; increase wavelength to spread fringes. Turn on which-path to collapse the interference.
+            </p>
           </section>
+
           <aside class="sim-controls-card">
-            <h3>Controls</h3>
-            <div class="placeholder-card small">
-              <p>Paste controls here.</p>
+            <h3>Double Slit Controls</h3>
+
+            <div class="control-group">
+              <label for="slitLambda">Wavelength λ (nm)
+                <button class="info-badge" data-info="Shorter wavelength → tighter fringes; longer wavelength → wider fringes. (In a real experiment, λ depends on particle energy.)">?</button>
+              </label>
+              <div class="row">
+                <input id="slitLambda" type="range" min="380" max="700" value="550" />
+                <span id="slitLambdaValue" class="value-pill">550 nm</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="slitSep">Slit Separation (d)
+                <button class="info-badge" data-info="Larger separation makes fringe spacing smaller (more stripes). Smaller separation makes fewer, wider fringes.">?</button>
+              </label>
+              <div class="row">
+                <input id="slitSep" type="range" min="40" max="160" value="100" />
+                <span id="slitSepValue" class="value-pill">100</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="slitWidth">Slit Width (a)
+                <button class="info-badge" data-info="Wider slits blur the interference with a stronger single-slit envelope; narrower slits sharpen the pattern.">?</button>
+              </label>
+              <div class="row">
+                <input id="slitWidth" type="range" min="10" max="80" value="30" />
+                <span id="slitWidthValue" class="value-pill">30</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="slitRate">Emission Rate (hits/s)
+                <button class="info-badge" data-info="How quickly the screen accumulates hits. The interference pattern emerges statistically as hits build up.">?</button>
+              </label>
+              <div class="row">
+                <input id="slitRate" type="range" min="10" max="220" value="90" />
+                <span id="slitRateValue" class="value-pill">90</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label>Measurement & Display</label>
+              <div class="row">
+                <label class="toggle"><input id="slitWhichPath" type="checkbox" /> Which-path detector</label>
+                <label class="toggle"><input id="slitShowIntensity" type="checkbox" checked /> Show intensity</label>
+              </div>
+              <div class="row">
+                <label class="toggle"><input id="slitShowHits" type="checkbox" checked /> Show hits</label>
+                <label class="toggle"><input id="slitSmoothing" type="checkbox" checked /> Smooth histogram</label>
+              </div>
+            </div>
+
+            <div class="control-group metrics">
+              <div class="metric"><div class="metric-label">Mode</div><div class="metric-value" id="slitModeMetric">Interference</div></div>
+              <div class="metric"><div class="metric-label">Expected Visibility</div><div class="metric-value" id="slitVisMetric">–</div></div>
+              <div class="metric"><div class="metric-label">Fringe Spacing</div><div class="metric-value" id="slitSpacingMetric">–</div></div>
+              <div class="metric"><div class="metric-label">Hits</div><div class="metric-value" id="slitHitsMetric">0</div></div>
+            </div>
+
+            <div class="control-buttons">
+              <button id="slitPlay" class="primary">Play</button>
+              <button id="slitPause">Pause</button>
+              <button id="slitReset">Reset</button>
             </div>
           </aside>
         </div>
-        <!-- === SLOT 4 HTML INSERT END === -->
 
-        <div id="sim-sim5" class="sim-layout" hidden>
-          <section class="sim-canvas-card"><div class="placeholder-card"><h3>Simulation 5</h3><p>Reserved slot.</p></div></section>
-          <aside class="sim-controls-card"><h3>Controls</h3><div class="placeholder-card small"><p>Reserved.</p></div></aside>
-        </div>
-
-        <div id="sim-sim6" class="sim-layout" hidden>
-          <section class="sim-canvas-card"><div class="placeholder-card"><h3>Simulation 6</h3><p>Reserved slot.</p></div></section>
-          <aside class="sim-controls-card"><h3>Controls</h3><div class="placeholder-card small"><p>Reserved.</p></div></aside>
-        </div>
-
-        <div id="sim-sim7" class="sim-layout" hidden>
-          <section class="sim-canvas-card"><div class="placeholder-card"><h3>Simulation 7</h3><p>Reserved slot.</p></div></section>
-          <aside class="sim-controls-card"><h3>Controls</h3><div class="placeholder-card small"><p>Reserved.</p></div></aside>
-        </div>
-
-        <div id="sim-sim8" class="sim-layout" hidden>
-          <section class="sim-canvas-card"><div class="placeholder-card"><h3>Simulation 8</h3><p>Reserved slot.</p></div></section>
-          <aside class="sim-controls-card"><h3>Controls</h3><div class="placeholder-card small"><p>Reserved.</p></div></aside>
-        </div>
-
-        <div id="sim-sim9" class="sim-layout" hidden>
-          <section class="sim-canvas-card"><div class="placeholder-card"><h3>Simulation 9</h3><p>Reserved slot.</p></div></section>
-          <aside class="sim-controls-card"><h3>Controls</h3><div class="placeholder-card small"><p>Reserved.</p></div></aside>
-        </div>
-
-        <div id="sim-sim10" class="sim-layout" hidden>
-          <section class="sim-canvas-card"><div class="placeholder-card"><h3>Simulation 10</h3><p>Reserved slot.</p></div></section>
-          <aside class="sim-controls-card"><h3>Controls</h3><div class="placeholder-card small"><p>Reserved.</p></div></aside>
-        </div>
-
-        <div id="sim-sim11" class="sim-layout" hidden>
-          <section class="sim-canvas-card"><div class="placeholder-card"><h3>Simulation 11</h3><p>Reserved slot.</p></div></section>
-          <aside class="sim-controls-card"><h3>Controls</h3><div class="placeholder-card small"><p>Reserved.</p></div></aside>
-        </div>
-
-        <div id="sim-sim12" class="sim-layout" hidden>
-          <section class="sim-canvas-card"><div class="placeholder-card"><h3>Simulation 12</h3><p>Reserved slot.</p></div></section>
-          <aside class="sim-controls-card"><h3>Controls</h3><div class="placeholder-card small"><p>Reserved.</p></div></aside>
-        </div>
-
+        <!-- SLOTS 5–12 placeholders still exist implicitly in hub only -->
       </section>
     </main>
   </div>
